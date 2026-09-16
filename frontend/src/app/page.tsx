@@ -16,6 +16,20 @@ async function getServices(): Promise<ServiceListItem[]> {
 export default async function HomePage() {
   const services = await getServices();
 
+  let apiBlogs: any[] = [];
+  try {
+    const res = await apiService.getBlogs();
+    apiBlogs = (res.data as any[]).slice(0, 3);
+  } catch (err) {
+    console.error("Failed to fetch blogs for homepage", err);
+  }
+
+  const blogs = apiBlogs.length > 0 ? apiBlogs : [
+    { title: 'Never worry about accidents anymore', date: 'October 19, 2022', img: mediaUrl('blog-1.png'), slug: 'giving-power' },
+    { title: 'The insurance company that you can trust', date: 'October 19, 2022', img: mediaUrl('blog-2.png'), slug: 'name-you-trust' },
+    { title: 'The next big thing in the insurance industry', date: 'October 19, 2022', img: mediaUrl('blog-3.png'), slug: 'pathway-secure' }
+  ];
+
   return (
     <>
       {/* Hero */}
@@ -342,30 +356,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-  // Fetch actual blogs for the homepage
-  let apiBlogs = [];
-  try {
-    const res = await apiService.getBlogs();
-    apiBlogs = (res.data as any[]).slice(0, 3);
-  } catch (err) {
-    console.error("Failed to fetch blogs for homepage", err);
-  }
-
-  const blogs = apiBlogs.length > 0 ? apiBlogs : [
-    { title: 'Never worry about accidents anymore', date: 'October 19, 2022', img: mediaUrl('blog-1.png'), slug: 'giving-power' },
-    { title: 'The insurance company that you can trust', date: 'October 19, 2022', img: mediaUrl('blog-2.png'), slug: 'name-you-trust' },
-    { title: 'The next big thing in the insurance industry', date: 'October 19, 2022', img: mediaUrl('blog-3.png'), slug: 'pathway-secure' }
-  ];
-
-  return (
-    <>
-      {/* ... Hero, About, Services sections ... */}
-      
-      {/* Testimonials */}
-      <section className="testimonial-area w-full lg:py-[120px] py-[60px]">
-        {/* ... Testimonials Content ... */}
-      </section>
-
       {/* Blog Section */}
       <section className="blog-section xl:py-[120px] py-[60px]">
         <div className="theme-container mx-auto px-5">
@@ -419,9 +409,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-    </>
-  );
-}
     </>
   );
 }
