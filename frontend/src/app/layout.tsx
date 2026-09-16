@@ -8,6 +8,18 @@ import { mediaUrl } from "@/lib/media";
 export const metadata: Metadata = {
   title: "Insucom - Insurance Agency",
   description: "Secure your future with us. Professional insurance solutions.",
+  appleWebApp: {
+    capable: true,
+    title: "Insucom",
+    statusBarStyle: "black-translucent",
+  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover" as const,
+  themeColor: "#004C3F",
 };
 
 export default function RootLayout({

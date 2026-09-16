@@ -9,6 +9,7 @@ interface HeaderProps {
 
 export default function Header({ variant = 'dark' }: HeaderProps) {
   const [isSticky, setIsSticky] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -148,10 +149,10 @@ export default function Header({ variant = 'dark' }: HeaderProps) {
 
               {/* Mobile Nav */}
               <nav className="nav-wrapper mobile-nav-wrapper block lg:hidden">
-                <div className="mobile-drawer">
+                <div className={`mobile-drawer${isDrawerOpen ? ' active' : ''}`}>
                   <div className="mobile-wid w-[310px] bg-white fixed top-0 h-full px-8 pt-10" style={{ zIndex: 99999 }}>
                     <div className="flex justify-center mb-10"><div className="logo-area w-[180px] h-[55px]"><img src={mediaUrl('logo.svg')} alt="insucom" className="w-full h-full object-contain" /></div></div>
-                    <ul className="flex flex-col mb-10">
+                    <ul className="flex flex-col mb-10" onClick={() => setIsDrawerOpen(false)}>
                       <li><Link href="/"><span>Home</span></Link></li>
                       <li><Link href="/login"><span className="font-bold text-[#028835]">Login / Portal</span></Link></li>
                       <li><Link href="/about"><span>About Us</span></Link></li>
@@ -168,7 +169,7 @@ export default function Header({ variant = 'dark' }: HeaderProps) {
                       </div>
                     </div>
                   </div>
-                  <div id="drawer-away" className="drawer-away w-full h-full fixed bg-black bg-opacity-80 z-30 left-0 top-0"></div>
+                  <div id="drawer-away" className="drawer-away w-full h-full fixed bg-black bg-opacity-80 z-30 left-0 top-0" onClick={() => setIsDrawerOpen(false)}></div>
                 </div>
               </nav>
             </div>
@@ -208,7 +209,7 @@ export default function Header({ variant = 'dark' }: HeaderProps) {
             </div>
 
             {/* Mobile hamburger */}
-            <button type="button" id="drawer-btn" className="w-[77px] h-full flex lg:hidden xl:hidden justify-center items-center">
+            <button type="button" id="drawer-btn" aria-label="Open menu" className="w-[77px] h-full flex lg:hidden xl:hidden justify-center items-center" onClick={() => setIsDrawerOpen((open) => !open)}>
               <span className={navText}>
                 <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M28 11H0" stroke="currentColor" strokeWidth="2" />
