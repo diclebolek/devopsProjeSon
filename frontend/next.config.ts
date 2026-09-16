@@ -2,12 +2,19 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Django REST uses trailing slashes; Next would otherwise 308-strip them
+  // and Django would 301 them back, causing an infinite redirect via /api proxy.
+  skipTrailingSlashRedirect: true,
   async rewrites() {
     const backend = process.env.API_PROXY_TARGET || "http://127.0.0.1:8000";
     return [
       {
+        source: "/api/:path*/",
+        destination: `${backend}/api/:path*/`,
+      },
+      {
         source: "/api/:path*",
-        destination: `${backend}/api/:path*`,
+        destination: `${backend}/api/:path*/`,
       },
     ];
   },

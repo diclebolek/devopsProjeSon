@@ -1,14 +1,19 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { apiService } from '@/lib/api';
+import { formatDate } from '@/lib/dates';
 import { Claim } from '@/types';
 
 const statusClass: Record<string, string> = {
   open: 'badge-yellow',
-  in_review: 'badge-yellow',
-  approved: 'badge-green',
-  rejected: 'badge-red',
+  review: 'badge-yellow',
   closed: 'badge-gray',
+};
+
+const statusLabel: Record<string, string> = {
+  open: 'Açık',
+  review: 'İncelemede',
+  closed: 'Kapandı',
 };
 
 export default function ClaimsPage() {
@@ -48,7 +53,7 @@ export default function ClaimsPage() {
             <thead>
               <tr>
                 <th>No</th>
-                <th>Poliçe No</th>
+                <th>Hasar No</th>
                 <th>Açıklama</th>
                 <th>Tarih</th>
                 <th>Durum</th>
@@ -58,10 +63,10 @@ export default function ClaimsPage() {
               {claims.map((c) => (
                 <tr key={c.id}>
                   <td className="text-[#004C3F] font-semibold">#{c.id}</td>
-                  <td className="font-mono">{c.policy_number}</td>
+                  <td className="font-mono">{c.claim_number}</td>
                   <td className="max-w-xs truncate">{c.description}</td>
-                  <td>{new Date(c.submitted_at).toLocaleDateString('tr-TR')}</td>
-                  <td><span className={`badge ${statusClass[c.status] ?? 'badge-gray'}`}>{c.status}</span></td>
+                  <td>{formatDate(c.incident_date)}</td>
+                  <td><span className={`badge ${statusClass[c.status] ?? 'badge-gray'}`}>{statusLabel[c.status] ?? c.status}</span></td>
                 </tr>
               ))}
             </tbody>

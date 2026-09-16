@@ -1,12 +1,21 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { apiService } from '@/lib/api';
+import { formatDate } from '@/lib/dates';
 import { Quote } from '@/types';
 
 const statusClass: Record<string, string> = {
-  pending: 'badge-yellow',
-  approved: 'badge-green',
+  draft: 'badge-gray',
+  sent: 'badge-yellow',
+  accepted: 'badge-green',
   rejected: 'badge-red',
+};
+
+const statusLabel: Record<string, string> = {
+  draft: 'Taslak',
+  sent: 'Gönderildi',
+  accepted: 'Kabul',
+  rejected: 'Red',
 };
 
 export default function QuotesPage() {
@@ -54,10 +63,10 @@ export default function QuotesPage() {
             <tbody>
               {quotes.map((q) => (
                 <tr key={q.id}>
-                  <td className="text-[#004C3F] font-semibold">#{q.id}</td>
-                  <td>{q.service_title}</td>
-                  <td>{new Date(q.requested_at).toLocaleDateString('tr-TR')}</td>
-                  <td><span className={`badge ${statusClass[q.status] ?? 'badge-gray'}`}>{q.status}</span></td>
+                  <td className="text-[#004C3F] font-semibold">{q.reference_code || `#${q.id}`}</td>
+                  <td>{q.product_type}</td>
+                  <td>{formatDate(q.created_at)}</td>
+                  <td><span className={`badge ${statusClass[q.status] ?? 'badge-gray'}`}>{statusLabel[q.status] ?? q.status}</span></td>
                 </tr>
               ))}
             </tbody>

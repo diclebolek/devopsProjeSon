@@ -39,7 +39,7 @@ export default async function ProjectsPage() {
                   <div className="w-full relative group">
                     <div className="w-full h-[440px] rounded overflow-hidden">
                       <img
-                        src={p.cover_image_url || mediaUrl('blog-4.png')}
+                        src={mediaUrl(p.cover_image_url || 'blog-4.png')}
                         alt={p.title}
                         className="w-full h-full object-cover"
                       />

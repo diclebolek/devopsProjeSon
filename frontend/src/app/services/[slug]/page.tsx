@@ -41,7 +41,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
 
   const title = service?.title || 'Risk Assessment';
   const description = service?.description || 'Aliquam eros justo, posuere loborti viverra laoreet ullamcorper posuere viverra .Aliquam eros justo, posuere lobortis non viverra laoreet augue mattis fermentum ullamcorper viverra laoreet.';
-  const img = service?.icon_url || mediaUrl('service-details-1.png');
+  const img = mediaUrl(service?.icon_url || 'service-details-1.png');
 
   return (
     <>

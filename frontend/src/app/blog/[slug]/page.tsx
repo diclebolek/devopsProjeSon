@@ -3,6 +3,7 @@ import Link from 'next/link';
 import PageBanner from '@/components/PageBanner';
 import { apiService } from '@/lib/api';
 import ClientSlider from '@/components/ClientSlider';
+import { formatDateLong } from '@/lib/dates';
 import { mediaUrl } from '@/lib/media';
 
 async function getBlog(slug: string) {
@@ -24,9 +25,9 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
   const blog = await getBlog(slug);
   const title = blog?.title || 'Giving You the Power to Protect Your Loved Ones and Secure Your Financial Future';
   const content = blog?.content || 'Aliquam eros posuere loborti viverra laoree ullamcorper posuere viverra eros justo, posuere lobo viverra laoreet augue mattis fermentum ullamcorper viverra. Aliquam eros justo, posuere loborti viverra laoreet matti ullamcorper posuere viverra. Aliquam eros justo, posuere lobortis non, viverra laoreet augue mattis fermentum ullamcorper viverra.';
-  const img = blog?.cover_image_url || mediaUrl('blog-details-1.png');
+  const img = mediaUrl(blog?.cover_image_url || 'blog-details-1.png');
   const author = blog?.author || 'Admin';
-  const date = blog?.published_at ? new Date(blog.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'October 19, 2022';
+  const date = formatDateLong(blog?.published_at, 'October 19, 2022');
   const category = blog?.category ? (typeof blog.category === 'object' ? blog.category.name : blog.category) : 'Insurance';
 
 

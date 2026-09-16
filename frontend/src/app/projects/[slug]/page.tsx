@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import PageBanner from '@/components/PageBanner';
 import { apiService } from '@/lib/api';
+import { formatDateLong } from '@/lib/dates';
 import { mediaUrl } from '@/lib/media';
 
 const CircleCheck = () => (
@@ -31,9 +32,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const project = await getProject(slug);
   const title = project?.title || 'A Lifetime Insurance';
   const description = project?.description || 'Aliquam eros justo, posuere loborti viverra laoreet matti ullamcorper posuere viverra.';
-  const img = project?.cover_image_url || mediaUrl('project-details-thumb-1.png');
+  const img = mediaUrl(project?.cover_image_url || 'project-details-thumb-1.png');
   const category = project?.category ? (typeof project.category === 'object' ? project.category.name : project.category) : 'Insurance';
-  const date = project?.created_at ? new Date(project.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'November 19, 2022';
+  const date = formatDateLong(project?.created_at, 'November 19, 2022');
 
   return (
     <>
