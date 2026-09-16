@@ -16,6 +16,23 @@ async function getServices(): Promise<ServiceListItem[]> {
 export default async function HomePage() {
   const services = await getServices();
 
+  let apiBlogs: any[] = [];
+  try {
+    const res = await apiService.getBlogs();
+    apiBlogs = (res.data as any[]).slice(0, 3);
+  } catch (err) {
+    console.error("Failed to fetch blogs for homepage", err);
+  }
+
+  const blogs =
+    apiBlogs.length > 0
+      ? apiBlogs
+      : [
+          { title: 'Never worry about accidents anymore', date: 'October 19, 2022', img: mediaUrl('blog-1.png'), slug: 'giving-power' },
+          { title: 'The insurance company that you can trust', date: 'October 19, 2022', img: mediaUrl('blog-2.png'), slug: 'name-you-trust' },
+          { title: 'The next big thing in the insurance industry', date: 'October 19, 2022', img: mediaUrl('blog-3.png'), slug: 'pathway-secure' },
+        ];
+
   return (
     <>
       {/* Hero */}
@@ -342,30 +359,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-  // Fetch actual blogs for the homepage
-  let apiBlogs = [];
-  try {
-    const res = await apiService.getBlogs();
-    apiBlogs = (res.data as any[]).slice(0, 3);
-  } catch (err) {
-    console.error("Failed to fetch blogs for homepage", err);
-  }
-
-  const blogs = apiBlogs.length > 0 ? apiBlogs : [
-    { title: 'Never worry about accidents anymore', date: 'October 19, 2022', img: mediaUrl('blog-1.png'), slug: 'giving-power' },
-    { title: 'The insurance company that you can trust', date: 'October 19, 2022', img: mediaUrl('blog-2.png'), slug: 'name-you-trust' },
-    { title: 'The next big thing in the insurance industry', date: 'October 19, 2022', img: mediaUrl('blog-3.png'), slug: 'pathway-secure' }
-  ];
-
-  return (
-    <>
-      {/* ... Hero, About, Services sections ... */}
-      
-      {/* Testimonials */}
-      <section className="testimonial-area w-full lg:py-[120px] py-[60px]">
-        {/* ... Testimonials Content ... */}
-      </section>
-
       {/* Blog Section */}
       <section className="blog-section xl:py-[120px] py-[60px]">
         <div className="theme-container mx-auto px-5">
@@ -382,7 +375,7 @@ export default async function HomePage() {
             {blogs.map((blog: any, i: number) => (
               <div key={i} data-aos="fade-up" data-aos-delay={(i+1)*100} className="blog-item group w-full overflow-hidden rounded bg-secondary hover:bg-white hover:shadow-2xl transition-all duration-300 ease-in-out border border-transparent hover:border-primaryBorder">
                 <div className="w-full h-[286px] relative overflow-hidden">
-                  <img src={blog.cover_image_url || blog.img} alt="blog" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                  <img src={mediaUrl(blog.cover_image_url || blog.img)} alt="blog" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                   <div className="px-5 py-2.5 rounded bg-primary-500 absolute left-10 bottom-10 z-10 shadow-lg">
                     <div className="flex space-x-2.5 items-center text-white">
                       <svg width="14" height="16" viewBox="0 0 14 16" fill="currentColor"><path d="M7 8C4.78125 8 3 6.21875 3 4C3 1.8125 4.78125 0 7 0C9.1875 0 11 1.8125 11 4C11 6.21875 9.1875 8 7 8ZM5.5625 9.5H8.40625C11.5 9.5 14 12 14 15.0938C14 15.5938 13.5625 16 13.0625 16H0.90625C0.40625 16 0 15.5938 0 15.0938C0 12 2.46875 9.5 5.5625 9.5Z"/></svg>
@@ -419,9 +412,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-    </>
-  );
-}
     </>
   );
 }
