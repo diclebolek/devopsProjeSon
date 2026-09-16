@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { apiService } from '@/lib/api';
+import { formatDateTime } from '@/lib/dates';
 import { Alert } from '@/types';
 
 export default function AlertsPage() {
@@ -54,9 +55,10 @@ export default function AlertsPage() {
               </div>
               <div className="flex-1">
                 <p className={`text-sm leading-6 ${!a.is_read ? 'text-[#004C3F] font-semibold' : 'text-[#677471]'}`}>
-                  {a.message}
+                  {a.title}
                 </p>
-                <p className="text-xs text-[#677471] mt-1">{new Date(a.created_at).toLocaleString('tr-TR')}</p>
+                {a.body ? <p className="text-sm text-[#677471] mt-1">{a.body}</p> : null}
+                <p className="text-xs text-[#677471] mt-1">{formatDateTime(a.created_at)}</p>
               </div>
               {!a.is_read && <span className="badge badge-green text-xs">Yeni</span>}
             </div>

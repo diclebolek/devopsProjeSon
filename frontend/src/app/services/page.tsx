@@ -45,7 +45,7 @@ export default async function ServicesPage() {
                   <p className="text-lg font-semibold text-gray-700 mb-9">Service 0{i + 1}</p>
                   <div className="mb-8">
                     {s.icon_url
-                      ? <img src={s.icon_url} alt={s.title} width="58" height="62" />
+                      ? <img src={mediaUrl(s.icon_url)} alt={s.title} width="58" height="62" />
                       : <img src={mediaUrl(`service-${(i % 4) + 1}.svg`)} alt={s.title} width="58" height="62" />}
                   </div>
                   <p className="lg:text-lg text-sm font-bold spline-sans sm:leading-7 text-primary-900 mb-5">{s.title}</p>

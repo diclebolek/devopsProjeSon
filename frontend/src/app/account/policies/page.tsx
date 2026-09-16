@@ -1,12 +1,19 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { apiService } from '@/lib/api';
+import { formatDate } from '@/lib/dates';
 import { Policy } from '@/types';
 
 const statusClass: Record<string, string> = {
   active: 'badge-green',
-  expired: 'badge-red',
-  pending: 'badge-yellow',
+  lapsed: 'badge-red',
+  cancelled: 'badge-gray',
+};
+
+const statusLabel: Record<string, string> = {
+  active: 'Aktif',
+  lapsed: 'Süresi doldu',
+  cancelled: 'İptal',
 };
 
 export default function PoliciesPage() {
@@ -57,11 +64,11 @@ export default function PoliciesPage() {
               {policies.map((p) => (
                 <tr key={p.id}>
                   <td className="font-mono text-[#004C3F] font-semibold">{p.policy_number}</td>
-                  <td>{p.type}</td>
-                  <td>{new Date(p.start_date).toLocaleDateString('tr-TR')}</td>
-                  <td>{new Date(p.end_date).toLocaleDateString('tr-TR')}</td>
-                  <td className="font-semibold">{p.premium} ₺</td>
-                  <td><span className={`badge ${statusClass[p.status] ?? 'badge-gray'}`}>{p.status}</span></td>
+                  <td>{p.product_name}</td>
+                  <td>{formatDate(p.start_date)}</td>
+                  <td>{formatDate(p.end_date)}</td>
+                  <td className="font-semibold">{p.premium_amount} {p.currency || '₺'}</td>
+                  <td><span className={`badge ${statusClass[p.status] ?? 'badge-gray'}`}>{statusLabel[p.status] ?? p.status}</span></td>
                 </tr>
               ))}
             </tbody>

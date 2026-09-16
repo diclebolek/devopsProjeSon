@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import Link from 'next/link';
 import { apiService } from '@/lib/api';
+import { formatDate } from '@/lib/dates';
 import { mediaUrl } from '@/lib/media';
 import { ServiceListItem } from '@/types';
 
@@ -167,7 +168,7 @@ export default async function HomePage() {
                     <Link href={`/services/${s.slug}`}>
                       <div className="flex justify-center mb-5">
                         <div className="w-[60px] h-[60px] rounded flex justify-center items-center bg-primary-50">
-                          {s.icon_url ? <img src={s.icon_url} alt={s.title} /> : <img src={mediaUrl(`service-${i + 1}.svg`)} alt={s.title} />}
+                          {s.icon_url ? <img src={mediaUrl(s.icon_url)} alt={s.title} /> : <img src={mediaUrl(`service-${i + 1}.svg`)} alt={s.title} />}
                         </div>
                       </div>
                       <h2 className="text-lg leading-7 font-bold spline-sans text-center text-primary-900 mb-5 group-hover:underline">{s.title}</h2>
@@ -372,7 +373,7 @@ export default async function HomePage() {
             {blogs.map((blog: any, i: number) => (
               <div key={i} data-aos="fade-up" data-aos-delay={(i+1)*100} className="blog-item group w-full overflow-hidden rounded bg-secondary hover:bg-white hover:shadow-2xl transition-all duration-300 ease-in-out border border-transparent hover:border-primaryBorder">
                 <div className="w-full h-[286px] relative overflow-hidden">
-                  <img src={blog.cover_image_url || blog.img} alt="blog" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                  <img src={mediaUrl(blog.cover_image_url || blog.img)} alt="blog" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                   <div className="px-5 py-2.5 rounded bg-primary-500 absolute left-10 bottom-10 z-10 shadow-lg">
                     <div className="flex space-x-2.5 items-center text-white">
                       <svg width="14" height="16" viewBox="0 0 14 16" fill="currentColor"><path d="M7 8C4.78125 8 3 6.21875 3 4C3 1.8125 4.78125 0 7 0C9.1875 0 11 1.8125 11 4C11 6.21875 9.1875 8 7 8ZM5.5625 9.5H8.40625C11.5 9.5 14 12 14 15.0938C14 15.5938 13.5625 16 13.0625 16H0.90625C0.40625 16 0 15.5938 0 15.0938C0 12 2.46875 9.5 5.5625 9.5Z"/></svg>
@@ -393,7 +394,7 @@ export default async function HomePage() {
                   <div className="flex justify-between items-center mb-8">
                     <div className="flex items-center space-x-2.5 text-primary-100">
                       <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.75 2H9.25V0.75C9.25 0.34375 9.5625 0 10 0C10.4062 0 10.75 0.34375 10.75 0.75V2H12C13.0938 2 14 2.90625 14 4V14C14 15.125 13.0938 16 12 16H2C0.875 16 0 15.125 0 14V4C0 2.90625 0.875 2 2 2H3.25V0.75C3.25 0.34375 3.5625 0 4 0C4.40625 0 4.75 0.34375 4.75 0.75V2ZM1.5 7.75H4V6H1.5V7.75ZM1.5 9.25V11.25H4V9.25H1.5ZM5.5 9.25V11.25H8.5V9.25H5.5ZM10 9.25V11.25H12.5V9.25H10ZM12.5 6H10V7.75H12.5V6ZM12.5 12.75H10V14.5H12C12.25 14.5 12.5 14.2812 12.5 14V12.75ZM8.5 12.75H5.5V14.5H8.5V12.75ZM4 12.75H1.5V14C1.5 14.2812 1.71875 14.5 2 14.5H4V12.75ZM8.5 6H5.5V7.75H8.5V6Z" fill="#028835"/></svg>
-                      <span className="text-base">{blog.published_at ? new Date(blog.published_at).toLocaleDateString() : blog.date}</span>
+                      <span className="text-base">{blog.published_at ? formatDate(blog.published_at) : blog.date}</span>
                     </div>
                     <div className="flex items-center space-x-2.5 text-primary-100">
                       <svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 0C11.0625 0 14 2.46875 14 5.5C14 8.5625 11.0625 11 7.5 11C6.90625 11 6.34375 10.9375 5.78125 10.8125C4.84375 11.4062 3.46875 12 1.75 12C1.4375 12 1.15625 11.8438 1.0625 11.5312C0.9375 11.25 0.96875 10.9375 1.1875 10.6875C1.21875 10.6875 1.90625 9.9375 2.40625 8.9375C1.53125 8 1 6.8125 1 5.5C1 2.46875 3.90625 0 7.5 0ZM6.125 9.34375C6.59375 9.46875 7.03125 9.5 7.5 9.5C10.25 9.5 12.5 7.71875 12.5 5.5C12.5 3.3125 10.25 1.5 7.5 1.5C4.71875 1.5 2.5 3.3125 2.5 5.5C2.5 6.625 3.03125 7.4375 3.5 7.90625L4.25 8.6875L3.75 9.65625C3.625 9.84375 3.5 10.0625 3.375 10.2812C3.9375 10.125 4.46875 9.875 5 9.53125L5.53125 9.21875L6.125 9.34375ZM14.7812 4.03125C18.25 4.15625 21 6.5625 21 9.5C21 10.8125 20.4375 12 19.5625 12.9375C20.0625 13.9375 20.75 14.6875 20.7812 14.6875C21 14.9375 21.0312 15.25 20.9062 15.5312C20.8125 15.8438 20.5312 16 20.2188 16C18.5 16 17.125 15.4062 16.1875 14.8125C15.625 14.9375 15.0625 15 14.5 15C11.9375 15 9.71875 13.75 8.65625 11.9375C9.1875 11.875 9.71875 11.75 10.1875 11.5625C11.0625 12.75 12.6562 13.5 14.5 13.5C14.9375 13.5 15.375 13.4688 15.8438 13.3438L16.4375 13.2188L16.9688 13.5312C17.5 13.875 18.0312 14.125 18.5938 14.2812C18.4688 14.0625 18.3438 13.8438 18.2188 13.6562L17.7188 12.6875L18.4688 11.9062C18.9375 11.4375 19.5 10.625 19.5 9.5C19.5 7.4375 17.5 5.75 14.9688 5.53125L15 5.5C15 5 14.9062 4.5 14.7812 4.03125Z" fill="#028835"/></svg>

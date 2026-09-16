@@ -4,6 +4,7 @@ import PageBanner from '@/components/PageBanner';
 import { apiService } from '@/lib/api';
 import { BlogListItem } from '@/types';
 import ClientSlider from '@/components/ClientSlider';
+import { formatDateLong } from '@/lib/dates';
 import { mediaUrl } from '@/lib/media';
 
 async function getBlogs() {
@@ -51,8 +52,8 @@ export default async function BlogPage() {
     id: b.id,
     title: b.title,
     category: typeof b.category === 'object' ? (b.category as any).name : b.category,
-    date: b.published_at ? new Date(b.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'October 19, 2022',
-    img: b.cover_image_url || mediaUrl('blog-b-1.png'),
+    date: formatDateLong(b.published_at, 'October 19, 2022'),
+    img: mediaUrl(b.cover_image_url || 'blog-b-1.png'),
     slug: b.slug,
     excerpt: 'Aliquam eros justo, posuere loborti viverra lao ullamcorper posuere viverra .Aliquam eros justo, posuere Aliquam eros justo, posuere loborti viverra lao ullamcorper posuere viverra.'
   })) : staticBlogs.map((s, i) => ({ ...s, id: i }));

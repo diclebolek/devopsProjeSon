@@ -1,12 +1,19 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { apiService } from '@/lib/api';
+import { formatDate } from '@/lib/dates';
 import { Payment } from '@/types';
 
 const statusClass: Record<string, string> = {
   paid: 'badge-green',
   pending: 'badge-yellow',
   overdue: 'badge-red',
+};
+
+const statusLabel: Record<string, string> = {
+  paid: 'Ödendi',
+  pending: 'Bekliyor',
+  overdue: 'Gecikmiş',
 };
 
 export default function PaymentsPage() {
@@ -53,9 +60,9 @@ export default function PaymentsPage() {
             <thead>
               <tr>
                 <th>No</th>
-                <th>Poliçe No</th>
+                <th>Açıklama</th>
                 <th>Tutar</th>
-                <th>Ödeme Tarihi</th>
+                <th>Vade Tarihi</th>
                 <th>Durum</th>
               </tr>
             </thead>
@@ -63,10 +70,10 @@ export default function PaymentsPage() {
               {payments.map((p) => (
                 <tr key={p.id}>
                   <td className="text-[#004C3F] font-semibold">#{p.id}</td>
-                  <td className="font-mono">{p.policy_number}</td>
+                  <td>{p.description}</td>
                   <td className="font-semibold text-[#004C3F]">{parseFloat(p.amount).toFixed(2)} ₺</td>
-                  <td>{new Date(p.payment_date).toLocaleDateString('tr-TR')}</td>
-                  <td><span className={`badge ${statusClass[p.status] ?? 'badge-gray'}`}>{p.status}</span></td>
+                  <td>{formatDate(p.due_date)}</td>
+                  <td><span className={`badge ${statusClass[p.status] ?? 'badge-gray'}`}>{statusLabel[p.status] ?? p.status}</span></td>
                 </tr>
               ))}
             </tbody>
