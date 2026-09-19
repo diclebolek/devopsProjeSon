@@ -6282,10 +6282,11 @@ class _AdminScreenState extends State<AdminScreen> {
         auth.currentEmployee?.email ??
         DemoData.demoAdmin().email ??
         'admin@orion.com';
-    final hasProfile = adminEmail.isNotEmpty || _isletme != null;
-    // Profil açılınca hesap bilgileri görünsün
+    _isletme ??= DemoData.isletme();
+    // Profil açılınca hesap/işletme bilgileri görünsün
     _expanded['account'] = true;
     _expanded['business'] = true;
+    _expanded['contact'] = true;
 
     showDialog(
       context: context,
@@ -6440,8 +6441,7 @@ class _AdminScreenState extends State<AdminScreen> {
                       padding: EdgeInsets.all(
                         MediaQuery.of(context).size.width < 600 ? 16 : 20,
                       ),
-                      child: hasProfile
-                          ? Column(
+                      child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 // Hesap Bilgileri Kategorisi (collapsible)
@@ -7705,40 +7705,6 @@ class _AdminScreenState extends State<AdminScreen> {
                                   // Görüntüleme için birleşik satır (hizalama düzeltildi)
                                   const SizedBox.shrink(),
                                 ],
-                              ],
-                            )
-                          : Column(
-                              children: [
-                                Icon(
-                                  Icons.error_outline,
-                                  size: 64,
-                                  color: _isDarkMode
-                                      ? Colors.red[300]
-                                      : Colors.red[600],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'Kullanıcı bilgileri yüklenemedi.',
-                                  style: TextStyle(
-                                    color: _isDarkMode
-                                        ? Colors.white70
-                                        : Colors.black87,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Lütfen tekrar deneyin veya sayfayı yenileyin.',
-                                  style: TextStyle(
-                                    color: _isDarkMode
-                                        ? Colors.white54
-                                        : Colors.black54,
-                                    fontSize: 14,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
                               ],
                             ),
                     ),

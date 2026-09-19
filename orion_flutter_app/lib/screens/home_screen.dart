@@ -1432,6 +1432,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
                     GridView.builder(
                       shrinkWrap: true,
+                      clipBehavior: Clip.none,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: filteredServices.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -1443,9 +1444,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                         ? 2
                                         : 1)),
                         crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
+                        mainAxisSpacing: 20,
                         childAspectRatio:
-                            MediaQuery.of(context).size.width < 600 ? 3.2 : 4.0,
+                            MediaQuery.of(context).size.width < 600 ? 3.0 : 4.0,
                       ),
                       itemBuilder: (context, i) {
                         final svc = filteredServices[i];
@@ -1723,6 +1724,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                     GridView.builder(
                       shrinkWrap: true,
+                      clipBehavior: Clip.none,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: filteredServices.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -1734,47 +1736,53 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                         ? 2
                                         : 1)),
                         crossAxisSpacing: 16,
-                        mainAxisSpacing: 12,
-                        // Sabit yükseklik — kutucuklar eşit
-                        mainAxisExtent: 104,
+                        mainAxisSpacing: 20,
+                        // Sabit yükseklik — kutucuklar eşit (+ gölge/yükselme payı)
+                        mainAxisExtent: 120,
                       ),
                       itemBuilder: (context, i) {
                         final svc = filteredServices[i];
-                        return ServiceCard(
-                          title: svc.serviceName,
-                          price: svc.servicePrice.toDouble(),
-                          imagePath: svc.imageUrl,
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                backgroundColor: SiriusColors.surface,
-                                title: Text(
-                                  svc.serviceName,
-                                  style: TextStyle(color: SiriusColors.heading),
-                                ),
-                                content: Text(
-                                  '${svc.servicePrice} ${_icerikBlok['currency'] ?? 'TL'}',
-                                  style: TextStyle(
-                                    color: SiriusColors.defaultText,
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 6,
+                          ),
+                          child: ServiceCard(
+                            title: svc.serviceName,
+                            price: svc.servicePrice.toDouble(),
+                            imagePath: svc.imageUrl,
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  backgroundColor: SiriusColors.surface,
+                                  title: Text(
+                                    svc.serviceName,
+                                    style: TextStyle(color: SiriusColors.heading),
                                   ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text(
-                                      _icerikBlok['dialog_close'] ?? 'Close',
-                                      style: TextStyle(
-                                        color: SiriusColors.accent,
-                                      ),
+                                  content: Text(
+                                    '${svc.servicePrice} ${_icerikBlok['currency'] ?? 'TL'}',
+                                    style: TextStyle(
+                                      color: SiriusColors.defaultText,
                                     ),
                                   ),
-                                ],
-                              ),
-                            );
-                          },
-                          isDarkMode: _isDarkMode,
-                          currency: _icerikBlok['currency'] ?? 'TL',
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text(
+                                        _icerikBlok['dialog_close'] ?? 'Close',
+                                        style: TextStyle(
+                                          color: SiriusColors.accent,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            isDarkMode: _isDarkMode,
+                            currency: _icerikBlok['currency'] ?? 'TL',
+                          ),
                         );
                       },
                     ),
@@ -3925,154 +3933,155 @@ class _ServiceCardState extends State<ServiceCard>
     return MouseRegion(
       onEnter: (_) => _setLifted(true),
       onExit: (_) => _setLifted(false),
-      child: GestureDetector(
-        onTapDown: (_) => _setLifted(true),
-        onTapUp: (_) {
-          _setLifted(false);
-          widget.onTap();
-        },
-        onTapCancel: () => _setLifted(false),
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return Transform.translate(
-              offset: Offset(0, _isHovered ? -6 : 0),
-              child: Transform.scale(
-                scale: _scaleAnimation.value,
-                child: Container(
-                  height: 104,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: widget.isDarkMode
-                        ? SiriusColors.surface.withValues(alpha: 0.92)
-                        : Colors.white.withValues(alpha: 0.95),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: SiriusColors.accent,
-                      width: _borderAnimation.value,
+      cursor: SystemMouseCursors.click,
+      child: Listener(
+        onPointerDown: (_) => _setLifted(true),
+        onPointerUp: (_) => _setLifted(false),
+        onPointerCancel: (_) => _setLifted(false),
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Transform.translate(
+                offset: Offset(0, _isHovered ? -8 : 0),
+                child: Transform.scale(
+                  scale: _scaleAnimation.value,
+                  child: Container(
+                    height: 104,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: SiriusColors.accent.withValues(
-                          alpha: _isHovered ? 0.35 : 0.12,
-                        ),
-                        blurRadius: _isHovered ? 18 : 6,
-                        spreadRadius: _isHovered ? 1 : 0,
-                        offset: Offset(0, _isHovered ? 10 : 3),
+                    decoration: BoxDecoration(
+                      color: widget.isDarkMode
+                          ? SiriusColors.surface.withValues(alpha: 0.95)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: SiriusColors.accent,
+                        width: _borderAnimation.value,
                       ),
-                      BoxShadow(
-                        color: Colors.black.withValues(
-                          alpha: _isHovered ? 0.28 : 0.12,
+                      boxShadow: [
+                        BoxShadow(
+                          color: SiriusColors.accent.withValues(
+                            alpha: _isHovered ? 0.45 : 0.22,
+                          ),
+                          blurRadius: _isHovered ? 22 : 10,
+                          spreadRadius: _isHovered ? 2 : 0,
+                          offset: Offset(0, _isHovered ? 12 : 4),
                         ),
-                        blurRadius: _isHovered ? 16 : 4,
-                        offset: Offset(0, _isHovered ? 8 : 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 72,
-                        height: 72,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: _isHovered
-                                  ? SiriusColors.accent
-                                  : Colors.white,
-                              width: _isHovered ? 3.0 : 2.0,
+                        BoxShadow(
+                          color: Colors.black.withValues(
+                            alpha: _isHovered ? 0.35 : 0.18,
+                          ),
+                          blurRadius: _isHovered ? 18 : 8,
+                          offset: Offset(0, _isHovered ? 10 : 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 72,
+                          height: 72,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: _isHovered
+                                    ? SiriusColors.accent
+                                    : Colors.white,
+                                width: _isHovered ? 3.0 : 2.0,
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: widget.imagePath.startsWith('http')
+                                  ? Image.network(
+                                      widget.imagePath,
+                                      width: 72,
+                                      height: 72,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(
+                                        color: SiriusColors.accent
+                                            .withValues(alpha: 0.15),
+                                        alignment: Alignment.center,
+                                        child: Icon(
+                                          Icons.fitness_center,
+                                          color: SiriusColors.accent,
+                                          size: 28,
+                                        ),
+                                      ),
+                                    )
+                                  : Image.asset(
+                                      widget.imagePath,
+                                      width: 72,
+                                      height: 72,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(
+                                        color: SiriusColors.accent
+                                            .withValues(alpha: 0.15),
+                                        alignment: Alignment.center,
+                                        child: Icon(
+                                          Icons.fitness_center,
+                                          color: SiriusColors.accent,
+                                          size: 28,
+                                        ),
+                                      ),
+                                    ),
                             ),
                           ),
-                          child: ClipOval(
-                            child: widget.imagePath.startsWith('http')
-                                ? Image.network(
-                                    widget.imagePath,
-                                    width: 72,
-                                    height: 72,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Container(
-                                      color: SiriusColors.accent
-                                          .withValues(alpha: 0.15),
-                                      alignment: Alignment.center,
-                                      child: Icon(
-                                        Icons.fitness_center,
-                                        color: SiriusColors.accent,
-                                        size: 28,
-                                      ),
-                                    ),
-                                  )
-                                : Image.asset(
-                                    widget.imagePath,
-                                    width: 72,
-                                    height: 72,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Container(
-                                      color: SiriusColors.accent
-                                          .withValues(alpha: 0.15),
-                                      alignment: Alignment.center,
-                                      child: Icon(
-                                        Icons.fitness_center,
-                                        color: SiriusColors.accent,
-                                        size: 28,
-                                      ),
-                                    ),
-                                  ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            widget.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: widget.isDarkMode
+                                  ? Colors.white
+                                  : (_isHovered
+                                        ? SiriusColors.accent
+                                        : SiriusColors.accent2),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              height: 1.2,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Text(
-                          widget.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: widget.isDarkMode
-                                ? Colors.white
-                                : (_isHovered
-                                      ? SiriusColors.accent
-                                      : SiriusColors.accent2),
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            height: 1.2,
+                        const SizedBox(width: 12),
+                        Container(
+                          constraints: const BoxConstraints(minWidth: 72),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: SiriusColors.accent.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color:
+                                  SiriusColors.accent.withValues(alpha: 0.35),
+                            ),
+                          ),
+                          child: Text(
+                            '${widget.price.toStringAsFixed(0)} ${widget.currency}',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: SiriusColors.accent,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Container(
-                        constraints: const BoxConstraints(minWidth: 72),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: SiriusColors.accent.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color:
-                                SiriusColors.accent.withValues(alpha: 0.35),
-                          ),
-                        ),
-                        child: Text(
-                          '${widget.price.toStringAsFixed(0)} ${widget.currency}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: SiriusColors.accent,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
