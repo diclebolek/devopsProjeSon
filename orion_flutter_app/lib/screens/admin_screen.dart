@@ -299,98 +299,21 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Future<void> _ensureIsletmeId() async {
-    if (!mounted) return;
-
-    if (_isletmeId == null || _isletmeId!.isEmpty) {
-      try {
-        _isletmeId = await DbService.resolveIsletmeId();
-
-        if (_isletmeId == null || _isletmeId!.isEmpty) {
-          throw Exception(
-            'İşletme ID çözümlenemedi. Supabase bağlantısını kontrol edin.',
-          );
-        }
-      } catch (e, st) {
-        debugPrint('[_ensureIsletmeId] Hata: $e\n$st');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('İşletme ID alınamadı: $e'),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 5),
-            ),
-          );
-        }
-        rethrow;
-      }
-    } else {}
+    // Demo mod: ağ yok, snackbar yok — sabit demo ID
+    _isletmeId ??= 'demo-isletme';
+    if (_isletmeId!.isEmpty) {
+      _isletmeId = 'demo-isletme';
+    }
   }
 
   Future<void> _loadIsletme() async {
-    try {
-      await _ensureIsletmeId();
-      if (_isletmeId == null) return;
-      final isletme = await DbService.getIsletmeById(_isletmeId!);
-      if (mounted) {
-        setState(() {
-          _isletme = isletme;
-        });
-      }
-      // Galeri verilerini yükle
-      try {
-        final items = await DbService.getIsletmeResimleri(_isletmeId!);
-        if (mounted) {
-          setState(() {
-            _galeriItems = items;
-          });
-        }
-      } catch (e, st) {
-        debugPrint('[_loadIsletme] Galeri yüklenemedi: $e\n$st');
-      }
-      // Etkinlikler (etkinlik tablosu) yükle
-      try {
-        final list = await DbService.getEtkinlikler(_isletmeId!);
-        final normalized = <Map<String, dynamic>>[];
-        for (final row in list) {
-          final map = Map<String, dynamic>.from(row);
-          // UI'de kullanılan anahtar adı uyumu için image_url aliası
-          map['image_url'] = map['afis_url'];
-          normalized.add(map);
-        }
-        if (mounted) {
-          setState(() {
-            _eventItems = normalized;
-          });
-        }
-      } catch (e, st) {
-        debugPrint('[_loadIsletme] Etkinlikler yüklenemedi: $e\n$st');
-      }
-      // Menü/Hizmetler yükle
-      try {
-        final menu = await DbService.getMenuHizmetIcerigi(_isletmeId!);
-        if (mounted && menu.isNotEmpty) {
-          setState(() {
-            _menuItems = menu;
-          });
-        }
-      } catch (e, st) {
-        debugPrint('[_loadIsletme] Menü yüklenemedi: $e\n$st');
-      }
-      // İçerik blok metinleri yükle (Why & About)
-      try {
-        final map = await DbService.getIcerikBlokMap(_isletmeId!);
-        if (mounted) {
-          setState(() {
-            _icerikBlok = map;
-          });
-        }
-      } catch (e, st) {
-        debugPrint('[_loadIsletme] İçerik blokları yüklenemedi: $e\n$st');
-      }
-      await _fetchTodaySummary();
-    } catch (e, st) {
-      debugPrint('[_loadIsletme] Hata: $e\n$st');
-    }
+    // Demo işletme — remote çağrı yok (hata snackbar üretmesin)
+    if (!mounted) return;
+    setState(() {
+      _isletmeId = 'demo-isletme';
+      _isletme = DemoData.isletme();
+      _icerikBlok = DemoData.icerikBlok();
+    });
   }
 
   Future<List<Appointment>> _getAppointmentsFromSupabase() async {
@@ -816,56 +739,12 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Future<void> _fetchEmployees() async {
-    // Demo anında — admin çalışan listesi boş kalmasın
-    if (mounted) {
-      setState(() {
-        _allEmployees = DemoData.employees();
-        _isLoadingEmployees = false;
-      });
-    }
-
-    try {
-      await _ensureIsletmeId();
-      if (_isletmeId == null) return;
-
-      final client = Supabase.instance.client;
-      final rows = await client
-          .from('calisanlar')
-          .select()
-          .eq('isletme_id', _isletmeId!)
-          .order('sira', ascending: true)
-          .order('created_at', ascending: true);
-
-      final employees = <Employee>[];
-      for (final row in (rows as List)) {
-        final m = row as Map<String, dynamic>;
-        employees.add(
-          Employee(
-            id: (m['id'] as num?)?.toInt(),
-            firstName: (m['ad'] ?? '').toString(),
-            lastName: (m['soyad'] ?? '').toString(),
-            expertise: (m['hizmet'] ?? 'Genel').toString(),
-            skills: (m['beceriler'] ?? '').toString(),
-            email: (m['email'] as String?),
-            phone: (m['phone'] as String?),
-            isActive: (m['aktif'] as bool?) ?? true,
-            hireDate: m['ise_baslama_tarihi'] != null
-                ? DateTime.tryParse(m['ise_baslama_tarihi'].toString())
-                : null,
-            profileImage: (m['profil_resmi'] as String?),
-          ),
-        );
-      }
-
-      if (employees.isNotEmpty && mounted) {
-        setState(() {
-          _allEmployees = employees;
-          _isLoadingEmployees = false;
-        });
-      }
-    } catch (_) {
-      // Demo zaten ekranda
-    }
+    // Sadece demo — ağ/snackbar yok
+    if (!mounted) return;
+    setState(() {
+      _allEmployees = DemoData.employees();
+      _isLoadingEmployees = false;
+    });
   }
 
   @override
