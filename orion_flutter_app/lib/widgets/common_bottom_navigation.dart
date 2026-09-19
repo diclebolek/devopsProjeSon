@@ -111,9 +111,9 @@ class CommonBottomNavigationBar extends StatelessWidget {
               ),
             ),
           ),
-          // FAB - Randevu butonu (Profesyonel gradient)
+          // FAB - Randevu butonu (tek daire, arka dekor yok)
           Positioned(
-            top: 14, // Orta hizalama için ayarlandı (daha önce -4 idi)
+            top: 14,
             left: 0,
             right: 0,
             child: Center(
@@ -123,39 +123,13 @@ class CommonBottomNavigationBar extends StatelessWidget {
                   width: fabSize,
                   height: fabSize,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [SiriusColors.accent, SiriusColors.accent2],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: SiriusColors.accent,
                     shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: SiriusColors.accent.withValues(alpha: 0.4),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                        spreadRadius: 2,
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
                   ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.3),
-                        width: 2,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.calendar_today_rounded,
-                      color: Colors.white,
-                      size: 22, // Hem mobil hem tablet için aynı
-                    ),
+                  child: const Icon(
+                    Icons.calendar_today_rounded,
+                    color: Colors.white,
+                    size: 22,
                   ),
                 ),
               ),

@@ -2047,69 +2047,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ],
         ),
       ),
-      floatingActionButton: kIsWeb
-          ? Builder(
-              builder: (context) {
-                final auth = Provider.of<AuthProvider>(context, listen: true);
-                if (!auth.isAuthenticated) {
-                  // Giriş yapılmamış halde sağda randevu al butonu
-                  return FloatingActionButton(
-                    onPressed: () => Navigator.pushNamed(context, '/login'),
-                    backgroundColor: SiriusColors.accent,
-                    foregroundColor: Colors.white,
-                    child: const Icon(Icons.calendar_today),
-                  );
-                }
-
-                // Giriş yapılmış halde ortada + butonu
-                return Transform.translate(
-                  offset: const Offset(0, 8),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: _fabPressed
-                            ? Colors.transparent
-                            : SiriusColors.accent.withValues(alpha: 0.6),
-                        width: 2,
-                      ),
-                      boxShadow: [
-                        if (_fabPressed)
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            blurRadius: 18,
-                            spreadRadius: 1,
-                            offset: const Offset(0, 8),
-                          ),
-                      ],
-                    ),
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        setState(() {
-                          _fabPressed = true;
-                        });
-                        _showAppointmentBookingDialog(context);
-                      },
-                      backgroundColor: _fabPressed
-                          ? SiriusColors.accent
-                          : Colors.transparent,
-                      foregroundColor: _fabPressed
-                          ? Colors.white
-                          : SiriusColors.accent,
-                      child: const Icon(Icons.add),
-                    ),
-                  ),
-                );
-              },
-            )
-          : null,
-      floatingActionButtonLocation: MediaQuery.of(context).size.width < 600
-          ? FloatingActionButtonLocation
-                .endFloat // Mobil ve tablet'te sağ alt köşe
-          : (Provider.of<AuthProvider>(context, listen: true).isAuthenticated)
-          ? FloatingActionButtonLocation
-                .centerDocked // Web'de ortada
-          : FloatingActionButtonLocation.endFloat, // Web'de sağ alt köşe
+      floatingActionButton: null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: null,
       extendBody: true, // Bottom navigation bar için body'yi genişlet
       resizeToAvoidBottomInset: false, // Bottom overflow hatasını önle

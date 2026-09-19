@@ -102,7 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'email': customer.email,
       'phone': customer.phone,
       'address': customer.address,
-      'profil_fotografi': DemoData.image('profile-avatar', w: 300, h: 300),
+      'profil_fotografi': '',
     };
     _isletme = DemoData.isletme();
     _userAppointments = DemoData.profileAppointments(customer.email);
@@ -700,7 +700,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'lastname': customer.lastName,
         'email': customer.email,
         'phone': customer.phone,
-        'profil_fotografi': DemoData.image('profile-avatar', w: 300, h: 300),
+        'profil_fotografi': '',
       };
     });
 
@@ -2794,10 +2794,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   Row(
                     children: [
-                      Image.asset(
-                        'assets/ikon/ayarlar-Photoroom.png',
-                        width: 28,
-                        height: 28,
+                      Icon(
+                        Icons.settings,
+                        size: 28,
+                        color: SiriusColors.accent,
                       ),
                       const SizedBox(width: 12),
                       Text(
@@ -4170,10 +4170,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Row(
                 children: [
-                  Image.asset(
-                    'assets/ikon/iletişim-Photoroom.png',
-                    width: 28,
-                    height: 28,
+                  Icon(
+                    Icons.mail_outline,
+                    size: 28,
+                    color: SiriusColors.accent,
                   ),
                   const SizedBox(width: 12),
                   Text(
@@ -4728,10 +4728,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   Row(
                     children: [
-                      Image.asset(
-                        'assets/ikon/edit-Photoroom.png',
-                        width: 28,
-                        height: 28,
+                      Icon(
+                        Icons.edit_calendar,
+                        size: 28,
+                        color: SiriusColors.accent,
                       ),
                       const SizedBox(width: 12),
                       Text(

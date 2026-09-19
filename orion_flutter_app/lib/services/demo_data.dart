@@ -234,7 +234,7 @@ class DemoData {
           phone: '0555 111 22 33',
           hireDate: DateTime(2022, 3, 1),
           isActive: true,
-          profileImage: image('emp-zeynep'),
+          profileImage: null,
           prolificacy: 4.8,
         ),
         Employee(
@@ -247,7 +247,7 @@ class DemoData {
           phone: '0555 222 33 44',
           hireDate: DateTime(2021, 6, 15),
           isActive: true,
-          profileImage: image('emp-can'),
+          profileImage: null,
           prolificacy: 4.7,
         ),
         Employee(
@@ -260,7 +260,7 @@ class DemoData {
           phone: '0555 333 44 55',
           hireDate: DateTime(2023, 1, 10),
           isActive: true,
-          profileImage: image('emp-elif'),
+          profileImage: null,
           prolificacy: 4.9,
         ),
         Employee(
@@ -273,7 +273,7 @@ class DemoData {
           phone: '0555 444 55 66',
           hireDate: DateTime(2020, 9, 1),
           isActive: true,
-          profileImage: image('emp-burak'),
+          profileImage: null,
           prolificacy: 4.6,
         ),
         Employee(
@@ -286,7 +286,7 @@ class DemoData {
           phone: '0555 555 66 77',
           hireDate: DateTime(2022, 11, 20),
           isActive: true,
-          profileImage: image('emp-selin'),
+          profileImage: null,
           prolificacy: 4.8,
         ),
         Employee(
@@ -299,7 +299,7 @@ class DemoData {
           phone: '0555 666 77 88',
           hireDate: DateTime(2021, 4, 5),
           isActive: true,
-          profileImage: image('emp-mert'),
+          profileImage: null,
           prolificacy: 4.5,
         ),
       ];

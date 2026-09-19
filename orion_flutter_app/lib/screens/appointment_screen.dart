@@ -1305,10 +1305,14 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
               ),
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundImage: employee.profileImage != null
-                      ? NetworkImage(employee.profileImage!)
-                      : null,
-                  child: employee.profileImage == null ? Text(name[0]) : null,
+                  backgroundColor: SiriusColors.accent.withValues(alpha: 0.15),
+                  child: Text(
+                    name.isNotEmpty ? name[0].toUpperCase() : '?',
+                    style: TextStyle(
+                      color: SiriusColors.accent,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 title: Text(
                   name,
