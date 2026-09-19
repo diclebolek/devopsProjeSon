@@ -1729,14 +1729,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         crossAxisCount: MediaQuery.of(context).size.width < 600
                             ? 1
                             : (MediaQuery.of(context).size.width > 1200
-                                  ? 3
+                                  ? 2
                                   : (MediaQuery.of(context).size.width > 800
                                         ? 2
                                         : 1)),
                         crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio:
-                            MediaQuery.of(context).size.width < 600 ? 3.2 : 4.0,
+                        mainAxisSpacing: 12,
+                        // Sabit yükseklik — kutucuklar eşit
+                        mainAxisExtent: 104,
                       ),
                       itemBuilder: (context, i) {
                         final svc = filteredServices[i];
@@ -3998,145 +3998,131 @@ class _ServiceCardState extends State<ServiceCard>
         builder: (context, child) {
           return Transform.scale(
             scale: _scaleAnimation.value,
-            child: Card(
-              color: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              elevation: _isHovered ? 8 : 0,
-              child: InkWell(
-                onTap: widget.onTap,
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: SiriusColors.accent,
-                      width: _borderAnimation.value,
+            child: SizedBox(
+              height: 104,
+              child: Card(
+                margin: EdgeInsets.zero,
+                color: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: _isHovered ? 8 : 0,
+                child: InkWell(
+                  onTap: widget.onTap,
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    height: 104,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      // Sol: Yuvarlak resim
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: _isHovered
-                                ? SiriusColors.accent
-                                : Colors.white,
-                            width: _isHovered ? 3.0 : 2.0,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(
-                                alpha: _isHovered ? 0.2 : 0.1,
-                              ),
-                              blurRadius: _isHovered ? 12 : 8,
-                              offset: Offset(0, _isHovered ? 6 : 4),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(40),
-                          child: widget.imagePath.startsWith('http')
-                              ? Image.network(
-                                  widget.imagePath,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.3,
-                                      ),
-                                      borderRadius: BorderRadius.circular(40),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: Icon(
-                                      Icons.image,
-                                      color: Colors.white.withValues(
-                                        alpha: 0.7,
-                                      ),
-                                      size: 30,
-                                    ),
-                                  ),
-                                )
-                              : Image.asset(
-                                  widget.imagePath,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.3,
-                                      ),
-                                      borderRadius: BorderRadius.circular(40),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: Icon(
-                                      Icons.image,
-                                      color: Colors.white.withValues(
-                                        alpha: 0.7,
-                                      ),
-                                      size: 30,
-                                    ),
-                                  ),
-                                ),
-                        ),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: SiriusColors.accent,
+                        width: _borderAnimation.value,
                       ),
-                      const SizedBox(width: 16),
-                      // Orta: Hizmet ismi
-                      Expanded(
-                        child: AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 200),
-                          style: TextStyle(
-                            color: widget.isDarkMode
-                                ? Colors.white
-                                : (_isHovered
-                                      ? SiriusColors.accent
-                                      : SiriusColors.accent2),
-                            fontSize: _isHovered ? 18 : 16,
-                            fontWeight: FontWeight.bold,
+                    ),
+                    child: Row(
+                      children: [
+                        // Sol: Sabit boyutlu yuvarlak resim
+                        SizedBox(
+                          width: 72,
+                          height: 72,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: _isHovered
+                                    ? SiriusColors.accent
+                                    : Colors.white,
+                                width: _isHovered ? 3.0 : 2.0,
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: widget.imagePath.startsWith('http')
+                                  ? Image.network(
+                                      widget.imagePath,
+                                      width: 72,
+                                      height: 72,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(
+                                        color: SiriusColors.accent
+                                            .withValues(alpha: 0.15),
+                                        alignment: Alignment.center,
+                                        child: Icon(
+                                          Icons.fitness_center,
+                                          color: SiriusColors.accent,
+                                          size: 28,
+                                        ),
+                                      ),
+                                    )
+                                  : Image.asset(
+                                      widget.imagePath,
+                                      width: 72,
+                                      height: 72,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(
+                                        color: SiriusColors.accent
+                                            .withValues(alpha: 0.15),
+                                        alignment: Alignment.center,
+                                        child: Icon(
+                                          Icons.fitness_center,
+                                          color: SiriusColors.accent,
+                                          size: 28,
+                                        ),
+                                      ),
+                                    ),
+                            ),
                           ),
+                        ),
+                        const SizedBox(width: 14),
+                        // Orta: Hizmet ismi
+                        Expanded(
                           child: Text(
                             widget.title,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: widget.isDarkMode
+                                  ? Colors.white
+                                  : (_isHovered
+                                        ? SiriusColors.accent
+                                        : SiriusColors.accent2),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              height: 1.2,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      // Sağ: Fiyat
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _isHovered
-                              ? SiriusColors.accent.withValues(alpha: 0.2)
-                              : SiriusColors.accent.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: _isHovered
-                                ? SiriusColors.accent
-                                : SiriusColors.accent.withValues(alpha: 0.3),
-                            width: _isHovered ? 2.0 : 1.0,
+                        const SizedBox(width: 12),
+                        // Sağ: Fiyat — sabit genişlik bandı
+                        Container(
+                          constraints: const BoxConstraints(minWidth: 72),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: SiriusColors.accent.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: SiriusColors.accent.withValues(alpha: 0.35),
+                            ),
+                          ),
+                          child: Text(
+                            '${widget.price.toStringAsFixed(0)} ${widget.currency}',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: SiriusColors.accent,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                        child: Text(
-                          '${widget.price.toStringAsFixed(0)} ${widget.currency}',
-                          style: TextStyle(
-                            color: SiriusColors.accent,
-                            fontSize: _isHovered ? 16 : 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
