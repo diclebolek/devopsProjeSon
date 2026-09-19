@@ -6280,7 +6280,8 @@ class _AdminScreenState extends State<AdminScreen> {
     // Şifresiz/demo admin girişinde Supabase oturumu yok — AuthProvider/DemoData kullan
     final adminEmail = supabaseUser?.email ??
         auth.currentEmployee?.email ??
-        DemoData.demoAdmin().email;
+        DemoData.demoAdmin().email ??
+        'admin@orion.com';
     final hasProfile = adminEmail.isNotEmpty || _isletme != null;
     // Profil açılınca hesap bilgileri görünsün
     _expanded['account'] = true;
