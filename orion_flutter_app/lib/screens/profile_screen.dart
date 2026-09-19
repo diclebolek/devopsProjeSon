@@ -5732,10 +5732,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Row(
                 children: [
-                  Image.asset(
-                    'assets/ikon/konumikon-Photoroom.png',
-                    width: 40,
-                    height: 40,
+                  Icon(
+                    Icons.location_on,
+                    size: 40,
+                    color: SiriusColors.accent,
                   ),
                   const SizedBox(width: 12),
                   Text(

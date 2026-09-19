@@ -14,6 +14,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../providers/language_provider.dart';
 import '../providers/theme_provider.dart';
 
@@ -1832,6 +1833,9 @@ class _AdminScreenState extends State<AdminScreen> {
                         ),
                         title: Text(
                           appointment.customerName,
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: _isDarkMode ? Colors.white : Colors.black87,
                             fontWeight: FontWeight.w600,
@@ -1852,13 +1856,17 @@ class _AdminScreenState extends State<AdminScreen> {
                                       : Colors.black54,
                                 ),
                                 const SizedBox(width: 4),
-                                Text(
-                                  appointment.employeeName,
-                                  style: TextStyle(
-                                    color: _isDarkMode
-                                        ? Colors.white70
-                                        : Colors.black54,
-                                    fontSize: 13,
+                                Expanded(
+                                  child: Text(
+                                    appointment.employeeName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: _isDarkMode
+                                          ? Colors.white70
+                                          : Colors.black54,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -1964,12 +1972,11 @@ class _AdminScreenState extends State<AdminScreen> {
                             ),
                           ],
                         ),
-                        trailing: Flexible(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
+                        trailing: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
                               GestureDetector(
                                 onTap: () => _cycleAppointmentStatus(
                                   appointment.appointmentId.toString(),
@@ -2023,7 +2030,6 @@ class _AdminScreenState extends State<AdminScreen> {
                               ),
                             ],
                           ),
-                        ),
                         onTap: () {
                           setState(() {
                             if (isSelected) {
@@ -6268,8 +6274,17 @@ class _AdminScreenState extends State<AdminScreen> {
 
   // Admin profil bilgileri dialog'u
   void _showAdminProfileDialog() {
-    final currentUser = Supabase.instance.client.auth.currentUser;
+    final supabaseUser = Supabase.instance.client.auth.currentUser;
+    final auth = Provider.of<AuthProvider>(context, listen: false);
     final lang = Provider.of<LanguageProvider>(context, listen: false);
+    // Şifresiz/demo admin girişinde Supabase oturumu yok — AuthProvider/DemoData kullan
+    final adminEmail = supabaseUser?.email ??
+        auth.currentEmployee?.email ??
+        DemoData.demoAdmin().email;
+    final hasProfile = adminEmail.isNotEmpty || _isletme != null;
+    // Profil açılınca hesap bilgileri görünsün
+    _expanded['account'] = true;
+    _expanded['business'] = true;
 
     showDialog(
       context: context,
@@ -6424,7 +6439,7 @@ class _AdminScreenState extends State<AdminScreen> {
                       padding: EdgeInsets.all(
                         MediaQuery.of(context).size.width < 600 ? 16 : 20,
                       ),
-                      child: currentUser != null
+                      child: hasProfile
                           ? Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -6437,9 +6452,9 @@ class _AdminScreenState extends State<AdminScreen> {
                                 if (_expanded['account'] == true)
                                   _buildEditableProfileInfoRow(
                                     lang.t('email'),
-                                    currentUser.email ?? 'N/A',
+                                    adminEmail,
                                     'email',
-                                    currentUser.email ?? '',
+                                    adminEmail,
                                   ),
                                 if (_expanded['account'] == true)
                                   _buildPasswordChangeRow(),
