@@ -76,7 +76,7 @@ class _AdminScreenState extends State<AdminScreen> {
         },
       )
       .toList();
-  Map<String, String> _icerikBlok = {};
+  Map<String, String> _icerikBlok = DemoData.icerikBlok();
   final Map<String, bool> _expanded = {
     'logo': false,
     'hero': false,
@@ -95,14 +95,14 @@ class _AdminScreenState extends State<AdminScreen> {
   Future<List<Appointment>>? _appointmentsFuture;
 
   List<EmployeePerformance> _employeePerformance = [];
-  bool _isLoadingPerformance = true;
+  bool _isLoadingPerformance = false;
 
   List<Employee> _allEmployees = DemoData.employees();
-  bool _isLoadingEmployees = true;
+  bool _isLoadingEmployees = false;
 
   // Supabase ve çoklu-tenant için yardımcı durum
-  String? _isletmeId;
-  Map<String, dynamic>? _isletme;
+  String? _isletmeId = 'demo-isletme';
+  Map<String, dynamic>? _isletme = DemoData.isletme();
   // Supabase randevu UUID -> UI'de kullanılan lokal int ID eşlemesi
   final Map<int, String> _localApptIdToUuid = {};
   int _localApptCounter = 0;
@@ -167,30 +167,101 @@ class _AdminScreenState extends State<AdminScreen> {
       });
     });
 
-    // Sıralı olarak veri yükle
+    // Demo veriyi anında bas — ağ bekleme yok
     _initializeData();
   }
 
   Future<void> _initializeData() async {
-    try {
-      await _loadIsletme();
-      await _fetchEmployees();
-      _appointmentsFuture = _getAppointmentsFromSupabase();
-      await _fetchEmployeePerformance();
-      await _fetchTodaySummary();
-    } catch (e) {
-      // Hata durumunda kullanıcıya bilgi ver
-      if (mounted) {
-        final lang = Provider.of<LanguageProvider>(context, listen: false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${lang.t('error_loading_data')}: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
+    _seedAdminDemoData();
+  }
+
+  void _seedAdminDemoData() {
+    final summary = DemoData.todaySummary();
+    final perfs = DemoData.employeePerformanceMaps()
+        .map(
+          (m) => EmployeePerformance(
+            employeeName: m['employeeName'] as String,
+            dailyEarnings: (m['dailyEarnings'] as num).toDouble(),
+            totalEarnings: (m['totalEarnings'] as num).toDouble(),
+            efficiency: (m['efficiency'] as num).toDouble(),
+            date: m['date'] as DateTime,
+            appointmentsCompleted: m['appointmentsCompleted'] as int,
+            averageRating: (m['averageRating'] as num).toDouble(),
+            pendingAppointments: m['pendingAppointments'] as int? ?? 0,
           ),
-        );
-      }
+        )
+        .toList();
+
+    if (!mounted) {
+      _allEmployees = DemoData.employees();
+      _employeePerformance = perfs;
+      _appointmentsFuture = Future.value(DemoData.appointments());
+      _todayTotalAppointments = summary['total'] ?? 0;
+      _todayPendingAppointments = summary['pending'] ?? 0;
+      _todayCompletedAppointments = summary['completed'] ?? 0;
+      _isletme = DemoData.isletme();
+      _icerikBlok = DemoData.icerikBlok();
+      return;
     }
+
+    setState(() {
+      _allEmployees = DemoData.employees();
+      _employeePerformance = perfs;
+      _appointmentsFuture = Future.value(DemoData.appointments());
+      _todayTotalAppointments = summary['total'] ?? 0;
+      _todayPendingAppointments = summary['pending'] ?? 0;
+      _todayCompletedAppointments = summary['completed'] ?? 0;
+      _isletme = DemoData.isletme();
+      _icerikBlok = DemoData.icerikBlok();
+      _isLoadingEmployees = false;
+      _isLoadingPerformance = false;
+      _menuItems = DemoData.services()
+          .map(
+            (s) => {
+              'menu_hizmet_icerigi_id': 'demo-svc-${s.serviceId}',
+              'hizmet': s.serviceName,
+              'hizmet_adi': s.serviceName,
+              'aciklama': s.description,
+              'fiyat': s.servicePrice,
+              'sure': s.serviceDuration,
+              'kategori': s.category,
+              'resim_url': s.imageUrl,
+              'aktif': true,
+            },
+          )
+          .toList();
+      _galeriItems = DemoData.gallery()
+          .asMap()
+          .entries
+          .map(
+            (e) => {
+              'resim_url': e.value,
+              'baslik': 'Salon ${e.key + 1}',
+              'aciklama': 'Orion Gym',
+            },
+          )
+          .toList();
+      _eventItems = [
+        {
+          'baslik': 'Sabah HIIT Kampı',
+          'afis_url': DemoData.image('event-1'),
+          'image_url': DemoData.image('event-1'),
+          'aciklama': 'Her Cumartesi 09:00',
+        },
+        {
+          'baslik': 'Yoga & Nefes Atölyesi',
+          'afis_url': DemoData.image('event-2'),
+          'image_url': DemoData.image('event-2'),
+          'aciklama': 'Pazar 11:00',
+        },
+        {
+          'baslik': 'CrossFit Challenge',
+          'afis_url': DemoData.image('event-3'),
+          'image_url': DemoData.image('event-3'),
+          'aciklama': 'Ayın son Cuması',
+        },
+      ];
+    });
   }
 
   @override
@@ -723,302 +794,25 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Future<void> _fetchEmployeePerformance() async {
-    try {
-      if (mounted) {
-        setState(() {
-          _isLoadingPerformance = true;
-        });
-      }
-
-      await _ensureIsletmeId();
-      if (_isletmeId == null) {
-        if (mounted) {
-          setState(() {
-            _employeePerformance = [];
-            _isLoadingPerformance = false;
-          });
-        }
-        return;
-      }
-
-      // Önce çalışanların yüklenmesini bekle
-      if (_allEmployees.isEmpty) {
-        await _fetchEmployees();
-        // Çalışanlar yüklendikten sonra tekrar kontrol et
-        if (_allEmployees.isEmpty) {
-          if (mounted) {
-            setState(() {
-              _employeePerformance = [];
-              _isLoadingPerformance = false;
-            });
-          }
-          return;
-        }
-      }
-
-      final client = Supabase.instance.client;
-      final today = DateTime.now();
-      final dateStr =
-          '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-
-      List<EmployeePerformance> performances = [];
-
-      // Önce performans tablosundan veri çekmeyi dene
-      try {
-        final rows = await client
-            .from('calisan_performans')
-            .select()
-            .eq('isletme_id', _isletmeId!)
-            .eq('tarih', dateStr)
-            .order('created_at', ascending: true);
-
-        if (rows.isNotEmpty) {
-          final Map<int, String> idToName = {
-            for (final e in _allEmployees)
-              if (e.id != null) e.id!: e.fullName,
-          };
-
-          for (final row in (rows as List)) {
-            final m = row as Map<String, dynamic>;
-            final calisanId = (m['calisan_id'] as num?)?.toInt();
-            final name = calisanId != null
-                ? (idToName[calisanId] ?? 'Bilinmeyen')
-                : 'Bilinmeyen';
-            performances.add(
-              EmployeePerformance(
-                employeeName: name,
-                dailyEarnings: (m['gunluk_kazanc'] as num?)?.toDouble() ?? 0.0,
-                totalEarnings: (m['toplam_kazanc'] as num?)?.toDouble() ?? 0.0,
-                efficiency: (m['verimlilik'] as num?)?.toDouble() ?? 0.0,
-                date:
-                    DateTime.tryParse((m['tarih'] ?? dateStr).toString()) ??
-                    today,
-                appointmentsCompleted:
-                    (m['tamamlanan_randevu'] as num?)?.toInt() ?? 0,
-                averageRating: (m['ortalama_puan'] as num?)?.toDouble() ?? 0.0,
-              ),
-            );
-          }
-        }
-      } catch (e) {
-        performances = [];
-      }
-
-      // Eğer performans tablosunda veri yoksa, randevulardan hesapla
-      if (performances.isEmpty) {
-        try {
-          final now = DateTime.now();
-          // Son 30 günlük veriyi al
-          final start = DateTime(now.year, now.month, now.day - 30, 0, 0, 0);
-          final end = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
-
-          // Tüm çalışanlar için performans hesapla (randevu olsun ya da olmasın)
-          // ignore: unused_local_variable
-          final Map<int, String> idToName = {
-            for (final e in _allEmployees)
-              if (e.id != null) e.id!: e.fullName,
-          };
-
-          // Her çalışan için performans hesapla
-          final List<EmployeePerformance> computed = [];
-
-          for (final employee in _allEmployees) {
-            if (employee.id == null) continue;
-
-            final empId = employee.id!;
-            final name = employee.fullName;
-
-            try {
-              // Bu çalışanın randevularını getir (bugünkü onaylanan randevulara öncelik ver)
-              final today = DateTime.now();
-              final todayStart = DateTime(
-                today.year,
-                today.month,
-                today.day,
-                0,
-                0,
-                0,
-              );
-              final todayEnd = DateTime(
-                today.year,
-                today.month,
-                today.day,
-                23,
-                59,
-                59,
-                999,
-              );
-
-              // Önce bugünkü onaylanan randevuları getir (çeşitli durum değerlerini kabul et)
-              final todayAppts = await client
-                  .from('randevu')
-                  .select(
-                    'calisan_id, approval_status, total_price, appointment_datetime',
-                  )
-                  .eq('isletme_id', _isletmeId!)
-                  .eq('calisan_id', empId)
-                  .or(
-                    "approval_status.eq.Approved,approval_status.eq.approved,"
-                    "approval_status.eq.Completed,approval_status.eq.completed,"
-                    "approval_status.eq.Approved,approval_status.eq.approved,"
-                    "approval_status.eq.Completed,approval_status.eq.completed",
-                  )
-                  .gte(
-                    'appointment_datetime',
-                    todayStart.toUtc().toIso8601String(),
-                  )
-                  .lte(
-                    'appointment_datetime',
-                    todayEnd.toUtc().toIso8601String(),
-                  );
-
-              // Bugünkü bekleyen randevuları getir
-              final todayPendingAppts = await client
-                  .from('randevu')
-                  .select(
-                    'calisan_id, approval_status, total_price, appointment_datetime',
-                  )
-                  .eq('isletme_id', _isletmeId!)
-                  .eq('calisan_id', empId)
-                  .eq('approval_status', 'Pending')
-                  .gte(
-                    'appointment_datetime',
-                    todayStart.toUtc().toIso8601String(),
-                  )
-                  .lte(
-                    'appointment_datetime',
-                    todayEnd.toUtc().toIso8601String(),
-                  );
-
-              // Sonra genel randevuları getir
-              final appts = await client
-                  .from('randevu')
-                  .select(
-                    'calisan_id, approval_status, total_price, appointment_datetime',
-                  )
-                  .eq('isletme_id', _isletmeId!)
-                  .eq('calisan_id', empId)
-                  .gte('appointment_datetime', start.toIso8601String())
-                  .lte('appointment_datetime', end.toIso8601String());
-
-              int approvedCount = 0;
-              int pendingCount = 0;
-              double totalEarnings = 0.0;
-              double todayEarnings = 0.0;
-
-              // Bugünkü onaylanan randevuları işle
-              for (final row in (todayAppts as List)) {
-                final m = row as Map<String, dynamic>;
-                final dynamic rawPrice = m['total_price'];
-                final double price = rawPrice is num
-                    ? rawPrice.toDouble()
-                    : double.tryParse(rawPrice?.toString() ?? '') ?? 0.0;
-                todayEarnings += price;
-                approvedCount++;
-              }
-
-              // Genel randevuları işle
-              for (final row in (appts as List)) {
-                final m = row as Map<String, dynamic>;
-                final status = (m['approval_status'] ?? '')
-                    .toString()
-                    .toLowerCase();
-                final dynamic rawPrice = m['total_price'];
-                final double price = rawPrice is num
-                    ? rawPrice.toDouble()
-                    : double.tryParse(rawPrice?.toString() ?? '') ?? 0.0;
-
-                if (status == 'approved' ||
-                    status == 'tamamlandı' ||
-                    status == 'onaylandı' ||
-                    status == 'completed') {
-                  totalEarnings += price;
-                }
-              }
-
-              // Bugünkü bekleyenleri say
-              pendingCount = (todayPendingAppts as List).length;
-
-              final total = approvedCount + pendingCount;
-              // Verimlilik: Onaylanan randevular / Toplam randevular * 100
-              final efficiency = total > 0
-                  ? (approvedCount * 100.0 / total)
-                  : 0.0;
-
-              computed.add(
-                EmployeePerformance(
-                  employeeName: name,
-                  dailyEarnings: todayEarnings, // Bugünkü kazancı kullan
-                  totalEarnings: totalEarnings, // Tüm zamanlardan toplam kazanç
-                  efficiency: efficiency,
-                  date: DateTime(now.year, now.month, now.day),
-                  appointmentsCompleted: approvedCount,
-                  averageRating: approvedCount > 0
-                      ? 4.5
-                      : 0.0, // Onaylanan randevu varsa rating ver
-                  pendingAppointments: pendingCount,
-                ),
-              );
-            } catch (e) {
-              // Hata durumunda da çalışanı ekle (sıfır performans ile)
-              computed.add(
-                EmployeePerformance(
-                  employeeName: name,
-                  dailyEarnings: 0.0,
-                  totalEarnings: 0.0,
-                  efficiency: 0.0,
-                  date: DateTime(now.year, now.month, now.day),
-                  appointmentsCompleted: 0,
-                  averageRating: 0.0,
-                  pendingAppointments: 0,
-                ),
-              );
-            }
-          }
-
-          performances = computed;
-        } catch (e) {
-          // Hata durumunda tüm çalışanları sıfır performans ile ekle
-          performances = _allEmployees
-              .map(
-                (employee) => EmployeePerformance(
-                  employeeName: employee.fullName,
-                  dailyEarnings: 0.0,
-                  totalEarnings: 0.0,
-                  efficiency: 0.0,
-                  date: DateTime.now(),
-                  appointmentsCompleted: 0,
-                  averageRating: 0.0,
-                  pendingAppointments: 0,
-                ),
-              )
-              .toList();
-        }
-      }
-
-      if (mounted) {
-        setState(() {
-          _employeePerformance = performances;
-          _isLoadingPerformance = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingPerformance = false;
-        });
-      }
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${Provider.of<LanguageProvider>(context, listen: false).t('error_loading_performance')}: $e',
-            ),
-            backgroundColor: Colors.red,
+    if (!mounted) return;
+    final perfs = DemoData.employeePerformanceMaps()
+        .map(
+          (m) => EmployeePerformance(
+            employeeName: m['employeeName'] as String,
+            dailyEarnings: (m['dailyEarnings'] as num).toDouble(),
+            totalEarnings: (m['totalEarnings'] as num).toDouble(),
+            efficiency: (m['efficiency'] as num).toDouble(),
+            date: m['date'] as DateTime,
+            appointmentsCompleted: m['appointmentsCompleted'] as int,
+            averageRating: (m['averageRating'] as num).toDouble(),
+            pendingAppointments: m['pendingAppointments'] as int? ?? 0,
           ),
-        );
-      }
-    }
+        )
+        .toList();
+    setState(() {
+      _employeePerformance = perfs;
+      _isLoadingPerformance = false;
+    });
   }
 
   Future<void> _fetchEmployees() async {
@@ -4719,73 +4513,13 @@ class _AdminScreenState extends State<AdminScreen> {
 
   // Supabase'den günlük özet sayılarını çek
   Future<void> _fetchTodaySummary() async {
-    try {
-      await _ensureIsletmeId();
-      if (_isletmeId == null) {
-        return;
-      }
-
-      final (start, end) = _todayRange();
-      final client = Supabase.instance.client;
-
-      // Toplam randevu sayısı
-      final totalResp = await client
-          .from('randevu')
-          .select('randevu_id')
-          .eq('isletme_id', _isletmeId!)
-          .gte('appointment_datetime', start.toIso8601String())
-          .lte('appointment_datetime', end.toIso8601String());
-
-      final int total = (totalResp as List).length;
-
-      // Bekleyen randevu sayısı (Pending)
-      final pendingResp = await client
-          .from('randevu')
-          .select('randevu_id')
-          .eq('isletme_id', _isletmeId!)
-          .eq('approval_status', 'Pending')
-          .gte('appointment_datetime', start.toIso8601String())
-          .lte('appointment_datetime', end.toIso8601String());
-      final int pending = (pendingResp as List).length;
-
-      // Tamamlanan randevu sayısı (Approved)
-      final completedResp = await client
-          .from('randevu')
-          .select('randevu_id')
-          .eq('isletme_id', _isletmeId!)
-          .eq('approval_status', 'Approved')
-          .gte('appointment_datetime', start.toIso8601String())
-          .lte('appointment_datetime', end.toIso8601String());
-      final int completed = (completedResp as List).length;
-
-      // Test için son 7 günün toplam randevu sayısını da göster
-      final lastWeekStart = DateTime.utc(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day - 7,
-        0,
-        0,
-        0,
-      );
-      final lastWeekResp = await client
-          .from('randevu')
-          .select('randevu_id')
-          .eq('isletme_id', _isletmeId!)
-          .gte('appointment_datetime', lastWeekStart.toIso8601String())
-          .lte('appointment_datetime', end.toIso8601String());
-
-      // ignore: unused_local_variable
-      final int lastWeekTotal = (lastWeekResp as List).length;
-
-      if (!mounted) return;
-      setState(() {
-        _todayTotalAppointments = total;
-        _todayPendingAppointments = pending;
-        _todayCompletedAppointments = completed;
-      });
-    } catch (e) {
-      // Hata durumunda sessizce devam et
-    }
+    final summary = DemoData.todaySummary();
+    if (!mounted) return;
+    setState(() {
+      _todayTotalAppointments = summary['total'] ?? 0;
+      _todayPendingAppointments = summary['pending'] ?? 0;
+      _todayCompletedAppointments = summary['completed'] ?? 0;
+    });
   }
 
   Color _getEfficiencyColor(double efficiency) {
@@ -6105,127 +5839,17 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _loadRecentActivities() async {
-    try {
-      await _ensureIsletmeId();
-      if (_isletmeId == null) return [];
-      final client = Supabase.instance.client;
-      // Son 15 randevuyu (en güncel) çek
-      final resp = await client
-          .from('randevu')
-          .select(
-            'appointment_datetime, approval_status, customerid, calisan_id, musteriler:customerid(firstname, lastname)',
-          )
-          .eq('isletme_id', _isletmeId!)
-          .order('appointment_datetime', ascending: false)
-          .limit(15);
-
-      final List<Map<String, dynamic>> activities = [];
-      for (final row in (resp as List)) {
-        final m = row as Map<String, dynamic>;
-        final DateTime dt =
-            DateTime.tryParse(
-              m['appointment_datetime']?.toString() ?? '',
-            )?.toLocal() ??
-            DateTime.now();
-        final String status = (m['approval_status'] ?? '').toString();
-        String? fullName;
-        final cust = m['musteriler'] as Map<String, dynamic>?;
-        if (cust != null) {
-          final first = (cust['firstname'] ?? '').toString();
-          final last = (cust['lastname'] ?? '').toString();
-          fullName = [first, last].where((p) => p.trim().isNotEmpty).join(' ');
-        }
-        final String title = _activityTitleFromStatus(status, fullName);
-        final IconData icon = _activityIconFromStatus(status);
-        final Color color = _activityColorFromStatus(status);
-        activities.add({
-          'title': title,
-          'time': _relativeTime(dt),
-          'icon': icon,
-          'color': color,
-          'ts': dt,
-        });
-      }
-
-      // Çalışan aktiviteleri: eklenenler (created_at) ve güncellemeler (updated_at)
-      final recentCreated = await client
-          .from('calisanlar')
-          .select('ad, soyad, created_at, aktif')
-          .eq('isletme_id', _isletmeId!)
-          .order('created_at', ascending: false)
-          .limit(10);
-
-      final recentUpdated = await client
-          .from('calisanlar')
-          .select('ad, soyad, updated_at, aktif')
-          .eq('isletme_id', _isletmeId!)
-          .order('updated_at', ascending: false)
-          .limit(20);
-
-      for (final row in (recentCreated as List)) {
-        final m = row as Map<String, dynamic>;
-        final String name =
-            '${(m['ad'] ?? '').toString()} ${(m['soyad'] ?? '').toString()}'
-                .trim();
-        final DateTime dt =
-            DateTime.tryParse(m['created_at']?.toString() ?? '')?.toLocal() ??
-            DateTime.now();
-        activities.add({
-          'title': name.isNotEmpty
-              ? 'Çalışan eklendi: $name'
-              : 'Çalışan eklendi',
-          'time': _relativeTime(dt),
-          'icon': Icons.person_add,
-          'color': Colors.blue,
-          'ts': dt,
-        });
-      }
-
-      for (final row in (recentUpdated as List)) {
-        final m = row as Map<String, dynamic>;
-        if (m['updated_at'] == null) continue;
-        final String name =
-            '${(m['ad'] ?? '').toString()} ${(m['soyad'] ?? '').toString()}'
-                .trim();
-        final DateTime dt =
-            DateTime.tryParse(m['updated_at']?.toString() ?? '')?.toLocal() ??
-            DateTime.now();
-        final bool aktif = (m['aktif'] as bool?) ?? true;
-        final bool isDeactivated = !aktif;
-        activities.add({
-          'title': name.isNotEmpty
-              ? (isDeactivated
-                    ? 'Çalışan silindi: $name'
-                    : 'Profil bilgileri güncellendi: $name')
-              : (isDeactivated
-                    ? 'Çalışan silindi'
-                    : 'Profil bilgileri güncellendi'),
-          'time': _relativeTime(dt),
-          'icon': isDeactivated ? Icons.person_remove : Icons.edit,
-          'color': isDeactivated ? Colors.red : Colors.orange,
-          'ts': dt,
-        });
-      }
-
-      // En yeni ilk 15 kaydı tarihe göre sırala ve dön
-      activities.sort(
-        (a, b) => (b['ts'] as DateTime).compareTo(a['ts'] as DateTime),
-      );
-      final top = activities
-          .take(15)
-          .map(
-            (e) => {
-              'title': e['title'],
-              'time': e['time'],
-              'icon': e['icon'],
-              'color': e['color'],
-            },
-          )
-          .toList();
-      return top;
-    } catch (_) {
-      return [];
-    }
+    // Demo aktiviteler — ağ yok
+    return DemoData.recentActivities().map((a) {
+      final status = (a['status'] as String? ?? '').toLowerCase();
+      return {
+        'title': a['title'],
+        'time': a['time'],
+        'icon': _activityIconFromStatus(status),
+        'color': _activityColorFromStatus(status),
+        'ts': a['ts'],
+      };
+    }).toList();
   }
 
   // Geçmiş aktiviteleri temizleme fonksiyonu (sadece gösterimi temizler, veri silmez)

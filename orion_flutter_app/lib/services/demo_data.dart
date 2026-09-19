@@ -532,6 +532,83 @@ class DemoData {
         'Spor',
       ];
 
+  /// Admin performans kartları
+  static List<Map<String, dynamic>> employeePerformanceMaps() {
+    final emps = employees();
+    return List.generate(emps.length, (i) {
+      final e = emps[i];
+      final seed = (e.id ?? (i + 1));
+      return {
+        'employeeName': e.fullName,
+        'dailyEarnings': 800.0 + seed * 120.0,
+        'totalEarnings': 12000.0 + seed * 1500.0,
+        'efficiency': 72.0 + (seed % 20),
+        'date': DateTime.now(),
+        'appointmentsCompleted': 3 + (seed % 8),
+        'averageRating': 4.0 + (seed % 10) / 10.0,
+        'pendingAppointments': seed % 3,
+      };
+    });
+  }
+
+  /// Admin ana sayfa — son aktiviteler
+  static List<Map<String, dynamic>> recentActivities() {
+    final appts = appointments();
+    return appts.take(8).map((a) {
+      final status = a.approvalStatus.toLowerCase();
+      String title;
+      if (status.contains('pending')) {
+        title = 'Yeni randevu: ${a.customerName} — ${a.serviceName}';
+      } else if (status.contains('cancel')) {
+        title = 'İptal: ${a.customerName} — ${a.serviceName}';
+      } else if (a.process.toLowerCase().contains('complete')) {
+        title = 'Tamamlandı: ${a.customerName} — ${a.serviceName}';
+      } else {
+        title = 'Onaylandı: ${a.customerName} — ${a.serviceName}';
+      }
+      return {
+        'title': title,
+        'time': _relativeDemo(a.appointmentDateTime),
+        'ts': a.appointmentDateTime,
+        'status': a.approvalStatus,
+      };
+    }).toList();
+  }
+
+  static Map<String, int> todaySummary() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+    final todays = appointments().where((a) {
+      final d = a.appointmentDateTime;
+      return !d.isBefore(today) && d.isBefore(tomorrow);
+    }).toList();
+    final pending = todays
+        .where((a) => a.approvalStatus.toLowerCase().contains('pending'))
+        .length;
+    final approved = todays
+        .where((a) => a.approvalStatus.toLowerCase().contains('approved'))
+        .length;
+    return {
+      'total': todays.length,
+      'pending': pending,
+      'completed': approved,
+    };
+  }
+
+  static String _relativeDemo(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.isNegative) {
+      final ahead = dt.difference(DateTime.now());
+      if (ahead.inHours < 1) return '${ahead.inMinutes} dk sonra';
+      if (ahead.inHours < 24) return '${ahead.inHours} saat sonra';
+      return '${ahead.inDays} gün sonra';
+    }
+    if (diff.inMinutes < 60) return '${diff.inMinutes} dk önce';
+    if (diff.inHours < 24) return '${diff.inHours} saat önce';
+    return '${diff.inDays} gün önce';
+  }
+
   static String _title(String s) {
     if (s.isEmpty) return demoName;
     return s[0].toUpperCase() + s.substring(1);
