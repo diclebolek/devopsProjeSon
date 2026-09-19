@@ -66,30 +66,30 @@ class _LoginScreenState extends State<LoginScreen>
   void initState() {
     super.initState();
 
-    // Initialize animation controllers
+    // Initialize animation controllers (kısa süre — hızlı ilk paint)
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 400),
       vsync: this,
     );
 
     _logoController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
 
     _formController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 350),
       vsync: this,
     );
 
     _gradientController = AnimationController(
-      duration: const Duration(seconds: 10),
+      duration: const Duration(seconds: 8),
       vsync: this,
     );
 
     // Sürekli logo döndürme için yeni controller
     _logoRotationController = AnimationController(
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 8),
       vsync: this,
     );
 
@@ -183,25 +183,10 @@ class _LoginScreenState extends State<LoginScreen>
     });
   }
 
-  // İşletme bilgilerini Supabase'den yükle
+  // İşletme — lokal demo (ağ bekleme)
   Future<void> _loadIsletme() async {
-    try {
-      final resolvedIsletmeId = await DbService.resolveIsletmeId();
-      if (resolvedIsletmeId != null) {
-        final isletme = await DbService.getIsletmeById(resolvedIsletmeId);
-        if (mounted) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              setState(() {
-                _isletme = isletme;
-              });
-            }
-          });
-        }
-      }
-    } catch (_) {
-      // Sessizce fallback'e bırak
-    }
+    if (!mounted) return;
+    setState(() => _isletme = DemoData.isletme());
   }
 
   @override

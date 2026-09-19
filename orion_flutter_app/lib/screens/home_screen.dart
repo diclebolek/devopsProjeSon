@@ -347,22 +347,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     // Animation controllers initialization
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 400),
       vsync: this,
     );
 
     _slideController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 350),
       vsync: this,
     );
 
     _scaleController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
     _bounceController = AnimationController(
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 250),
       vsync: this,
     );
 

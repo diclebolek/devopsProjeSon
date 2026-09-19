@@ -415,60 +415,16 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
 
   Future<void> _loadServices() async {
     if (!mounted) return;
-
-    // Demo ile başla — boş/yavaş ekran olmasın
-    if (_services.isEmpty || _employees.isEmpty) {
-      setState(() {
-        _services = DemoData.services();
-        _employees = DemoData.employees();
-        _selectedService ??= _services.isNotEmpty ? _services.first.serviceName : null;
-        _selectedEmployee ??=
-            _employees.isNotEmpty ? _employees.first.fullName : null;
-        _isLoading = false;
-      });
-    }
-
+    // Sadece demo — ağ çağrısı yok
     setState(() {
-      _isLoading = true;
+      _services = DemoData.services();
+      _employees = DemoData.employees();
+      _selectedService ??=
+          _services.isNotEmpty ? _services.first.serviceName : null;
+      _selectedEmployee ??=
+          _employees.isNotEmpty ? _employees.first.fullName : null;
+      _isLoading = false;
     });
-
-    await _ensureIsletmeId();
-
-    List<Service> services = List.from(_services);
-    try {
-      if (_isletmeId != null && _isletmeId!.isNotEmpty) {
-        final remote = await DbService.getServicesFromSupabase(_isletmeId!);
-        if (remote.isNotEmpty) services = remote;
-      }
-    } catch (_) {}
-    if (services.isEmpty) services = DemoData.services();
-
-    final employees = <Employee>[...DemoData.employees()];
-    try {
-      if (_isletmeId != null && _isletmeId!.isNotEmpty) {
-        final remoteEmps = await DbService.getEmployeesByServiceFromSupabase(
-          _isletmeId!,
-          _selectedService ?? services.first.serviceName,
-        );
-        if (remoteEmps.isNotEmpty) {
-          employees
-            ..clear()
-            ..addAll(remoteEmps);
-        }
-      }
-    } catch (_) {}
-
-    if (mounted) {
-      setState(() {
-        _services = services;
-        _employees = employees;
-        _selectedService ??=
-            services.isNotEmpty ? services.first.serviceName : null;
-        _selectedEmployee ??=
-            employees.isNotEmpty ? employees.first.fullName : null;
-        _isLoading = false;
-      });
-    }
   }
 
   Future<void> _submitAppointment() async {

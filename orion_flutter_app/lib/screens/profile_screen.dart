@@ -874,25 +874,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final customer =
         authProvider.currentCustomer ?? DemoData.demoCustomer();
 
-    // Anında demo randevular (UI boş/yavaş kalmasın)
-    final demo = DemoData.profileAppointments(customer.email);
+    // Sadece lokal demo — ağ yok, anında
     if (mounted) {
       setState(() {
-        _userAppointments = demo;
+        _userAppointments = DemoData.profileAppointments(customer.email);
         _isLoadingAppointments = false;
       });
     }
-
-    // Arka planda kısa süreli remote dene; doluysa güncelle
-    try {
-      final remote = await Future.any([
-        _fetchRemoteAppointments(customer),
-        Future.delayed(const Duration(seconds: 2), () => <Appointment>[]),
-      ]);
-      if (remote.isNotEmpty && mounted) {
-        setState(() => _userAppointments = remote);
-      }
-    } catch (_) {}
   }
 
   Future<List<Appointment>> _fetchRemoteAppointments(dynamic customer) async {

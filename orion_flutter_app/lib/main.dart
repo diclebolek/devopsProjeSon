@@ -92,12 +92,11 @@ void main() async {
   // Konsol loglarini kapat
   debugPrint = (String? message, {int? wrapWidth}) {};
 
-  // Supabase configuration - project-specific values
+  // Supabase'i UI'ı BLOKLAMADAN arka planda başlat (yavaş açılışın ana sebebi buydu)
   const supabaseUrl = 'https://gdopygwkotwprnvginxi.supabase.co';
   const supabaseAnonKey =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkb3B5Z3drb3R3cHJudmdpbnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MDE1NDcsImV4cCI6MjA3MTA3NzU0N30.ERqd7thllRSg9EJHianb9wWhAabE13ZcyiuBSFoAtHs';
 
-  // Check if environment variables are set, otherwise use defaults
   final envUrl = const String.fromEnvironment(
     'SUPABASE_URL',
     defaultValue: supabaseUrl,
@@ -107,9 +106,12 @@ void main() async {
     defaultValue: supabaseAnonKey,
   );
 
-  await Supabase.initialize(url: envUrl, anonKey: envKey);
+  // Fire-and-forget: demo UI anında açılsın
+  Supabase.initialize(url: envUrl, anonKey: envKey).then(
+    (_) {},
+    onError: (_) {},
+  );
 
-  // await _applyThemeFromSupabase(); // Artık kullanılmıyor - sabit renk kullanılıyor
   runApp(
     MultiProvider(
       providers: [
@@ -117,7 +119,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(
           create: (context) =>
-              LanguageProvider(initialLanguage: AppLanguage.en),
+              LanguageProvider(initialLanguage: AppLanguage.tr),
         ),
       ],
       child: const SiriusBeautyApp(),
