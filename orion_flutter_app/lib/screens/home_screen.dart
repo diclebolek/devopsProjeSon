@@ -20,6 +20,54 @@ import 'dart:ui'; // Added for ImageFilter
 import 'dart:math'; // Added for sin function
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+// Placeholder resimler için yardımcı fonksiyon
+Widget buildImageWidget(String? imageUrl, {BoxFit fit = BoxFit.cover, double? width, double? height}) {
+  if (imageUrl != null && imageUrl.trim().isNotEmpty) {
+    if (imageUrl.startsWith('http') || imageUrl.startsWith('https')) {
+      return Image.network(
+        imageUrl,
+        fit: fit,
+        width: width,
+        height: height,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(width: width, height: height),
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return _buildPlaceholder(width: width, height: height);
+        },
+      );
+    } else {
+      return Image.asset(
+        imageUrl,
+        fit: fit,
+        width: width,
+        height: height,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(width: width, height: height),
+      );
+    }
+  }
+  return _buildPlaceholder(width: width, height: height);
+}
+
+Widget _buildPlaceholder({double? width, double? height}) {
+  return Container(
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [Colors.grey[300]!, Colors.grey[100]!],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: const Icon(
+      Icons.fitness_center,
+      color: Colors.grey,
+      size: 48,
+    ),
+  );
+}
+
 class AutoImageSlider extends StatefulWidget {
   const AutoImageSlider({super.key});
 
@@ -447,6 +495,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // Veri yükleme
   Future<void> _loadData() async {
     try {
+      // Test randevularını oluştur (sadece bir kez)
+      try {
+        await DbService.createTestAppointments();
+      } catch (e) {
+        // Hata olursa devam et
+        print('Test randevuları oluşturulamadı: $e');
+      }
+
       // Web platformunda fallback veriler kullan
       if (kIsWeb) {
         setState(() {

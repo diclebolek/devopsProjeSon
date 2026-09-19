@@ -158,9 +158,8 @@ class _MainWrapperState extends State<MainWrapper> {
   }
 
   bool _shouldShowBottomNav() {
-    // Telefon/tablet genişliğinde göster (web Chrome cihaz modu dahil)
-    final screenWidth = MediaQuery.of(context).size.width;
-    if (screenWidth > 1200) {
+    // Login ve register sayfalarında navbar gösterme
+    if (widget.routeName == '/login' || widget.routeName == '/register') {
       return false;
     }
 
@@ -169,12 +168,7 @@ class _MainWrapperState extends State<MainWrapper> {
       return false;
     }
 
-    // Login ve register sayfalarında da navbar gösterme
-    if (widget.routeName == '/login' || widget.routeName == '/register') {
-      return false;
-    }
-
-    return true; // Diğer sayfalarda navbar göster (mobil ve tablet)
+    return true; // Diğer tüm sayfalarda navbar göster (mobil, tablet, web)
   }
 
   void _onTabTapped(int index) {

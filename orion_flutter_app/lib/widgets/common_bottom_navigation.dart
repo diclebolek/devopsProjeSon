@@ -21,15 +21,10 @@ class CommonBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Web'de navbar'ı gizle
-    if (kIsWeb) {
-      return const SizedBox.shrink();
-    }
-
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // Sadece desktop ekranlarda navbar'ı gizle (mobil ve tablet'te göster)
+    // Sadece çok büyük masaüstü ekranlarda navbar'ı gizle
     if (screenWidth > 1200) {
       return const SizedBox.shrink();
     }

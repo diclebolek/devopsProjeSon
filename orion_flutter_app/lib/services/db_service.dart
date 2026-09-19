@@ -3647,4 +3647,130 @@ class DbService {
       rethrow;
     }
   }
+
+  // Test için rastgele randevular oluştur
+  static Future<void> createTestAppointments() async {
+    try {
+      final random = DateTime.now().millisecondsSinceEpoch;
+      const uuid = Uuid();
+      
+      // Test müşterileri
+      List<Map<String, String>> testCustomers = [
+        {'id': 'test-customer-1', 'name': 'Ahmet Yılmaz', 'email': 'ahmet@test.com'},
+        {'id': 'test-customer-2', 'name': 'Ayşe Kaya', 'email': 'ayse@test.com'},
+        {'id': 'test-customer-3', 'name': 'Mehmet Demir', 'email': 'mehmet@test.com'},
+        {'id': 'test-customer-4', 'name': 'Fatma Şahin', 'email': 'fatma@test.com'},
+      ];
+
+      // Test çalışanları
+      List<Map<String, String>> testEmployees = [
+        {'id': 'test-employee-1', 'name': 'Zeynep Trainer'},
+        {'id': 'test-employee-2', 'name': 'Can Coach'},
+      ];
+
+      // Test hizmetleri
+      List<Map<String, dynamic>> testServices = [
+        {'name': 'Kişisel Antrenman', 'duration': 60, 'price': 150},
+        {'name': 'Grup Fitness', 'duration': 45, 'price': 80},
+        {'name': 'Yoga Dersi', 'duration': 75, 'price': 100},
+        {'name': 'Pilates Seansı', 'duration': 50, 'price': 120},
+      ];
+
+      // Müşterileri oluştur
+      for (var customer in testCustomers) {
+        try {
+          await _supabase.from('musteriler').upsert({
+            'customerid': customer['id'],
+            'firstname': customer['name']!.split(' ')[0],
+            'lastname': customer['name']!.split(' ')[1],
+            'email': customer['email'],
+            'phone': '05${random % 100000000 + 300000000}',
+            'created_at': DateTime.now().toIso8601String(),
+          });
+        } catch (e) {
+          // Müşteri zaten varsa devam et
+        }
+      }
+
+      // Çalışanları oluştur
+      for (var employee in testEmployees) {
+        try {
+          await _supabase.from('calisanlar').upsert({
+            'employeeid': employee['id'],
+            'firstname': employee['name']!.split(' ')[0],
+            'lastname': employee['name']!.split(' ')[1],
+            'email': '${employee['name']!.toLowerCase().replaceAll(' ', '')}@orion.com',
+            'phone': '05${random % 100000000 + 400000000}',
+            'position': 'Trainer',
+            'created_at': DateTime.now().toIso8601String(),
+          });
+        } catch (e) {
+          // Çalışan zaten varsa devam et
+        }
+      }
+
+      // Test randevuları oluştur (son 7 gün + gelecek 14 gün)
+      for (int i = -7; i <= 14; i++) {
+        DateTime date = DateTime.now().add(Duration(days: i));
+        
+        // Her gün için 2-4 randevu oluştur
+        int appointmentCount = 2 + (random + i) % 3;
+        
+        for (int j = 0; j < appointmentCount; j++) {
+          String randevuId = uuid.v4();
+          String customerId = testCustomers[j % testCustomers.length]['id']!;
+          String employeeId = testEmployees[j % testEmployees.length]['id']!;
+          var service = testServices[j % testServices.length];
+          
+          // Randevu saati: 9:00-17:00 arası
+          int hour = 9 + (j * 2 + i) % 8;
+          int minute = (j % 2) * 30;
+          
+          DateTime appointmentTime = DateTime(date.year, date.month, date.day, hour, minute);
+          
+          // Geçmiş randevular için durum belirleme
+          String status = 'scheduled';
+          if (appointmentTime.isBefore(DateTime.now())) {
+            status = ['completed', 'completed', 'cancelled'][j % 3];
+          }
+
+          await _supabase.from('randevu').upsert({
+            'randevu_id': randevuId,
+            'customerid': customerId,
+            'employeeid': employeeId,
+            'appointment_date': appointmentTime.toIso8601String(),
+            'service_name': service['name'],
+            'service_duration': service['duration'],
+            'service_price': service['price'],
+            'status': status,
+            'notes': 'Test randevusu - ${service['name']}',
+            'created_at': DateTime.now().subtract(Duration(days: 7 - i)).toIso8601String(),
+          });
+        }
+      }
+
+      logger.i('Test randevuları başarıyla oluşturuldu');
+    } catch (e) {
+      logger.e('Test randevu oluşturma hatası', error: e);
+      rethrow;
+    }
+  }
+
+  // Test verilerini temizle
+  static Future<void> clearTestData() async {
+    try {
+      // Test randevularını sil
+      await _supabase.from('randevu').delete().like('randevu_id', 'test-%');
+      
+      // Test müşterilerini sil
+      await _supabase.from('musteriler').delete().like('customerid', 'test-customer-%');
+      
+      // Test çalışanlarını sil
+      await _supabase.from('calisanlar').delete().like('employeeid', 'test-employee-%');
+      
+      logger.i('Test verileri temizlendi');
+    } catch (e) {
+      logger.e('Test veri temizleme hatası', error: e);
+    }
+  }
 }
