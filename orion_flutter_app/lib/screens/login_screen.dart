@@ -1573,10 +1573,11 @@ class _LoginScreenState extends State<LoginScreen>
 
   // Şifre girilmeden oturum açar: e-posta varsa onu, yoksa demo hesabını kullanır.
   // Hem müşteri hem admin rolü için çalışır, seçili role göre yönlendirir.
+  // Hem müşteri hem admin rolü için çalışır, seçili role göre yönlendirir.
   void _performPasswordlessLogin() {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final email = _emailController.text.trim().isEmpty
-        ? DemoData.demoEmail
+        ? (_selectedRole == 'admin' ? 'admin@orion.com' : DemoData.demoEmail)
         : _emailController.text.trim();
 
     if (_selectedRole == 'admin') {
