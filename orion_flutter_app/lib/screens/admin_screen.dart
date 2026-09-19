@@ -30,8 +30,37 @@ class AdminScreen extends StatefulWidget {
 class _AdminScreenState extends State<AdminScreen> {
   // State değişkenleri
   final ImagePicker _imagePicker = ImagePicker();
-  List<Map<String, dynamic>> _galeriItems = [];
-  List<Map<String, dynamic>> _eventItems = [];
+  List<Map<String, dynamic>> _galeriItems = DemoData.gallery()
+      .asMap()
+      .entries
+      .map(
+        (e) => {
+          'resim_url': e.value,
+          'baslik': 'Salon ${e.key + 1}',
+          'aciklama': 'Orion Gym',
+        },
+      )
+      .toList();
+  List<Map<String, dynamic>> _eventItems = [
+    {
+      'baslik': 'Sabah HIIT Kampı',
+      'afis_url': DemoData.image('event-1'),
+      'image_url': DemoData.image('event-1'),
+      'aciklama': 'Her Cumartesi 09:00',
+    },
+    {
+      'baslik': 'Yoga & Nefes Atölyesi',
+      'afis_url': DemoData.image('event-2'),
+      'image_url': DemoData.image('event-2'),
+      'aciklama': 'Pazar 11:00',
+    },
+    {
+      'baslik': 'CrossFit Challenge',
+      'afis_url': DemoData.image('event-3'),
+      'image_url': DemoData.image('event-3'),
+      'aciklama': 'Ayın son Cuması',
+    },
+  ];
   List<Map<String, dynamic>> _menuItems = DemoData.services()
       .map(
         (s) => {
