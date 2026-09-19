@@ -206,48 +206,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final GlobalKey _teamSectionKey = GlobalKey();
 
   // Veri tabanı verileri
-  List<Service> _services = [
-    // Fallback services (Supabase'den veri gelmezse gösterilecek)
-    Service(
-      serviceId: 1,
-      serviceName: 'Saç Kesimi',
-      serviceDuration: 30,
-      servicePrice: 150.0,
-      description: 'Profesyonel saç kesimi ve şekillendirme',
-      imageUrl: 'assets/services/hair.jpg',
-      category: 'Saç',
-      isActive: true,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    Service(
-      serviceId: 2,
-      serviceName: 'Makyaj',
-      serviceDuration: 45,
-      servicePrice: 200.0,
-      description: 'Günlük ve özel gün makyajı',
-      imageUrl: 'assets/services/makeup.jpg',
-      category: 'Makyaj',
-      isActive: true,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-  ];
+  List<Service> _services = DemoData.services();
 
-  Map<String, dynamic> _isletme = {
-    // Fallback işletme bilgileri (Supabase'den veri gelmezse gösterilecek)
-    'isim': 'Orion',
-    'aciklama': 'Spor Salonu & Fitness',
-    'logo_url': null, // Local asset path, not a network URL
-    'banner_url': null, // Local asset path, not a network URL
-    'arka_plan_url': null, // Local asset path, not a network URL
-  };
-  List<String> _galleryDynamic = [];
+  Map<String, dynamic> _isletme = DemoData.isletme();
+  List<String> _galleryDynamic = DemoData.gallery();
 
-  // Service filtering - Default to hair category
-  ServiceCategory selectedCategory = ServiceCategory.hair;
+  // Service filtering — gym kategorileri (All ile başla, boş filtre olmasın)
+  ServiceCategory selectedCategory = ServiceCategory.all;
   // Dinamik kategoriler (Supabase iceriklerine göre)
-  List<String> _dynamicCategories = ['All']; // Fallback kategori
+  List<String> _dynamicCategories = DemoData.serviceCategories();
   String _selectedDynamicCategory = 'All';
 
   // Page controllers ve timers
@@ -286,36 +253,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   // Content blocks
-  Map<String, String> _icerikBlok = {
-    'btn_login': 'Giriş Yap',
-    'hero_subtitle': 'Profesyonel Güzellik Hizmetleri',
-    'hero_tagline': 'Güzelliğinizi Keşfedin',
-  };
+  Map<String, String> _icerikBlok = DemoData.icerikBlok();
 
-  // Team members data
-  List<Map<String, String>> teamMembers = [
-    // Fallback team members (Supabase'den veri gelmezse gösterilecek)
-    {
-      'name': 'Fatma Demir',
-      'role': 'Saç Ustası',
-      'image': 'assets/Team/hair1.jpg',
-    },
-    {
-      'name': 'Ali Özkan',
-      'role': 'Makyaj Ustası',
-      'image': 'assets/Team/makeup.jpg',
-    },
-    {
-      'name': 'Zeynep Kaya',
-      'role': 'Cilt Bakım Uzmanı',
-      'image': 'assets/Team/skincare.jpg',
-    },
-  ];
-  // Gallery images (fallback) - empty to avoid local assets
-  final List<String> galleryImages = [];
-
-  // Event images (fallback) - empty to avoid local assets
-  List<String> eventImages = [];
+  // Team members data — spor salonu ekibi
+  List<Map<String, String>> teamMembers = DemoData.team();
+  // Gallery / events — dolu demo
+  final List<String> galleryImages = DemoData.gallery();
+  List<String> eventImages = DemoData.events();
 
   // Section keys for scrolling
   final GlobalKey _aboutSectionKey = GlobalKey();

@@ -32,7 +32,21 @@ class _AdminScreenState extends State<AdminScreen> {
   final ImagePicker _imagePicker = ImagePicker();
   List<Map<String, dynamic>> _galeriItems = [];
   List<Map<String, dynamic>> _eventItems = [];
-  List<Map<String, dynamic>> _menuItems = [];
+  List<Map<String, dynamic>> _menuItems = DemoData.services()
+      .map(
+        (s) => {
+          'menu_hizmet_icerigi_id': 'demo-svc-${s.serviceId}',
+          'hizmet': s.serviceName,
+          'hizmet_adi': s.serviceName,
+          'aciklama': s.description,
+          'fiyat': s.servicePrice,
+          'sure': s.serviceDuration,
+          'kategori': s.category,
+          'resim_url': s.imageUrl,
+          'aktif': true,
+        },
+      )
+      .toList();
   Map<String, String> _icerikBlok = {};
   final Map<String, bool> _expanded = {
     'logo': false,
@@ -54,7 +68,7 @@ class _AdminScreenState extends State<AdminScreen> {
   List<EmployeePerformance> _employeePerformance = [];
   bool _isLoadingPerformance = true;
 
-  List<Employee> _allEmployees = [];
+  List<Employee> _allEmployees = DemoData.employees();
   bool _isLoadingEmployees = true;
 
   // Supabase ve çoklu-tenant için yardımcı durum
@@ -254,7 +268,7 @@ class _AdminScreenState extends State<AdminScreen> {
       // Menü/Hizmetler yükle
       try {
         final menu = await DbService.getMenuHizmetIcerigi(_isletmeId!);
-        if (mounted) {
+        if (mounted && menu.isNotEmpty) {
           setState(() {
             _menuItems = menu;
           });
@@ -979,67 +993,39 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Future<void> _fetchEmployees() async {
-    try {
-      if (mounted) {
-        setState(() {
-          _isLoadingEmployees = true;
-        });
-      }
+    // Demo anında — admin çalışan listesi boş kalmasın
+    if (mounted) {
+      setState(() {
+        _allEmployees = DemoData.employees();
+        _isLoadingEmployees = false;
+      });
+    }
 
+    try {
       await _ensureIsletmeId();
-      if (_isletmeId == null) {
-        if (mounted) {
-          setState(() {
-            _allEmployees = [];
-            _isLoadingEmployees = false;
-          });
-        }
-        return;
-      }
+      if (_isletmeId == null) return;
 
       final client = Supabase.instance.client;
-
-      // Önce tüm çalışanları getir (aktif olmayanlar dahil)
-      final allRows = await client
-          .from('calisanlar')
-          .select()
-          .eq('isletme_id', _isletmeId!)
-          .order('sira', ascending: true)
-          .order('created_at', ascending: true);
-
-      // Sadece aktif çalışanları filtrele
       final rows = await client
           .from('calisanlar')
           .select()
           .eq('isletme_id', _isletmeId!)
-          .eq('aktif', true) // Sadece aktif çalışanları getir
           .order('sira', ascending: true)
           .order('created_at', ascending: true);
 
-      // Eğer aktif çalışan yoksa, tüm çalışanları göster
-      final finalRows = (rows as List).isNotEmpty ? rows : allRows;
-
       final employees = <Employee>[];
-      for (final row in (finalRows as List)) {
+      for (final row in (rows as List)) {
         final m = row as Map<String, dynamic>;
-        final empId = (m['id'] as num?)?.toInt();
-        final firstName = (m['ad'] ?? '').toString();
-        final lastName = (m['soyad'] ?? '').toString();
-        final isActive = (m['aktif'] as bool?) ?? true;
-
         employees.add(
           Employee(
-            id: empId,
-            firstName: firstName,
-            lastName: lastName,
+            id: (m['id'] as num?)?.toInt(),
+            firstName: (m['ad'] ?? '').toString(),
+            lastName: (m['soyad'] ?? '').toString(),
             expertise: (m['hizmet'] ?? 'Genel').toString(),
             skills: (m['beceriler'] ?? '').toString(),
-            prolificacy: null,
-            dailyEarnings: null,
-            serviceId: null,
             email: (m['email'] as String?),
             phone: (m['phone'] as String?),
-            isActive: isActive,
+            isActive: (m['aktif'] as bool?) ?? true,
             hireDate: m['ise_baslama_tarihi'] != null
                 ? DateTime.tryParse(m['ise_baslama_tarihi'].toString())
                 : null,
@@ -1048,28 +1034,14 @@ class _AdminScreenState extends State<AdminScreen> {
         );
       }
 
-      if (mounted) {
+      if (employees.isNotEmpty && mounted) {
         setState(() {
           _allEmployees = employees;
           _isLoadingEmployees = false;
         });
       }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingEmployees = false;
-        });
-      }
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${Provider.of<LanguageProvider>(context, listen: false).t('error_loading_employees')}: $e',
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+    } catch (_) {
+      // Demo zaten ekranda
     }
   }
 
