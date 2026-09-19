@@ -12,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
 import '../services/db_service.dart';
+import '../services/demo_data.dart';
 import '../models/appointment.dart';
 import '../models/service.dart';
 import '../models/customer.dart';
@@ -49,21 +50,17 @@ Widget buildImageWidget(String? imageUrl, {BoxFit fit = BoxFit.cover, double? wi
 }
 
 Widget _buildPlaceholder({double? width, double? height}) {
-  return Container(
+  final seed = DateTime.now().microsecondsSinceEpoch % 10000;
+  return Image.network(
+    'https://picsum.photos/seed/ph$seed/${(width ?? 400).toInt()}/${(height ?? 300).toInt()}',
     width: width,
     height: height,
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        colors: [Colors.grey[300]!, Colors.grey[100]!],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: const Icon(
-      Icons.fitness_center,
-      color: Colors.grey,
-      size: 48,
+    fit: BoxFit.cover,
+    errorBuilder: (context, error, stackTrace) => Container(
+      width: width,
+      height: height,
+      color: const Color(0xFFE8E4DC),
+      child: const Icon(Icons.fitness_center, color: Colors.grey, size: 48),
     ),
   );
 }
@@ -492,103 +489,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  // Veri yükleme
+  // Veri yükleme — lokal demo ile anında açılır (ağ beklemez)
   Future<void> _loadData() async {
     try {
-      // Test randevularını oluştur (sadece bir kez)
-      try {
-        await DbService.createTestAppointments();
-      } catch (e) {
-        // Hata olursa devam et
-        print('Test randevuları oluşturulamadı: $e');
+      // Önce demo veriyi anında bas (UI boş/yavaş kalmasın)
+      if (mounted) {
+        final demoServices = DemoData.services();
+        setState(() {
+          _isletme = DemoData.isletme();
+          _galleryDynamic = DemoData.gallery();
+          _services = demoServices;
+          _dynamicCategories = [
+            'All',
+            ...{for (final s in demoServices) s.category},
+          ];
+          _selectedDynamicCategory = 'All';
+          teamMembers = DemoData.team();
+          eventImages = DemoData.events();
+          _icerikBlok = DemoData.icerikBlok();
+        });
       }
 
-      // Web platformunda fallback veriler kullan
+      // Web'de ağ çağrısı yapma — demo yeterli ve hızlı
       if (kIsWeb) {
-        setState(() {
-          // Web için statik veriler
-          _isletme = {
-            'isim': 'Orion Gym & Fitness',
-            'banner_url': '',
-            'logo_url': '',
-            'arka_plan_url': '',
-          };
-          _galleryDynamic = galleryImages;
-          _services = [
-            Service(
-              serviceId: 1,
-              serviceName: 'Saç Kesimi',
-              serviceDuration: 30,
-              servicePrice: 150,
-              description: 'Profesyonel saç kesimi',
-              imageUrl: '',
-              category: 'Saç',
-              isActive: true,
-              createdAt: DateTime.now(),
-              updatedAt: DateTime.now(),
-            ),
-            Service(
-              serviceId: 2,
-              serviceName: 'Makyaj',
-              serviceDuration: 45,
-              servicePrice: 200,
-              description: 'Özel gün makyajı',
-              imageUrl: '',
-              category: 'Makyaj',
-              isActive: true,
-              createdAt: DateTime.now(),
-              updatedAt: DateTime.now(),
-            ),
-            Service(
-              serviceId: 3,
-              serviceName: 'Cilt Bakımı',
-              serviceDuration: 60,
-              servicePrice: 300,
-              description: 'Derin temizlik ve nemlendirme',
-              imageUrl: '',
-              category: 'Cilt',
-              isActive: true,
-              createdAt: DateTime.now(),
-              updatedAt: DateTime.now(),
-            ),
-          ];
-          _dynamicCategories = ['All', 'Saç', 'Makyaj', 'Cilt'];
-          _selectedDynamicCategory = 'All';
-          teamMembers = [
-            {
-              'name': 'Fatma Demir',
-              'role': 'Saç Ustası',
-              'image': 'assets/Team/hair1.jpg',
-            },
-            {
-              'name': 'Ali Özkan',
-              'role': 'Makyaj Ustası',
-              'image': 'assets/Team/makeup.jpg',
-            },
-            {
-              'name': 'Zeynep Kaya',
-              'role': 'Cilt Bakım Uzmanı',
-              'image': 'assets/Team/skincare.jpg',
-            },
-          ];
-          eventImages = [];
-          _icerikBlok = {
-            'why_1_title': 'Güzellik ve Huzur Buluşuyor',
-            'why_1_desc':
-                'Profesyonel ekibimizle size en iyi hizmeti sunuyoruz',
-            'why_2_title': 'Güzelliğiniz, Bizim Galaksimiz',
-            'why_2_desc': 'Her detayda mükemmellik arayışımız',
-            'why_3_title': 'Yıldızlardan Öte Parlayın',
-            'why_3_desc': 'Modern teknikler ve kaliteli ürünler',
-            'currency': 'TL',
-            'dialog_close': 'Kapat',
-            'hero_subtitle': 'Güzellik Salonu & Spa',
-            'hero_tagline': 'Güzel Hisset, Orion Ol',
-            'brand_name': 'Orion',
-            'btn_login': 'Giriş Yap',
-            'btn_learn_more': 'Daha Fazla',
-          };
-        });
         return;
       }
 

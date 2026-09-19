@@ -13,6 +13,7 @@ import '../providers/auth_provider.dart';
 import '../models/employee.dart';
 import '../models/customer.dart';
 import '../providers/theme_provider.dart';
+import '../services/demo_data.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,7 +25,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _emailController = TextEditingController(text: DemoData.demoEmail);
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
@@ -1590,36 +1591,16 @@ class _LoginScreenState extends State<LoginScreen>
   void _performPasswordlessLogin() {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final email = _emailController.text.trim().isEmpty
-        ? 'misafir@orion.com'
+        ? DemoData.demoEmail
         : _emailController.text.trim();
 
     if (_selectedRole == 'admin') {
-      authProvider.loginAdmin(
-        Employee(
-          id: 1,
-          firstName: 'Admin',
-          lastName: 'User',
-          expertise: 'Administration',
-          skills: 'admin',
-          email: email,
-          phone: '',
-          hireDate: DateTime.now(),
-          isActive: true,
-        ),
-      );
+      authProvider.loginAdmin(DemoData.demoAdmin(email: email));
       _safeNavigatePushReplacement('/admin');
       return;
     }
 
-    final localPart = email.split('@').first;
-    authProvider.loginCustomer(
-      Customer(
-        firstName: localPart.isEmpty ? 'Misafir' : localPart,
-        lastName: 'Kullanıcı',
-        email: email,
-        createdAt: DateTime.now(),
-      ),
-    );
+    authProvider.loginCustomer(DemoData.demoCustomer(email: email));
     _safeNavigatePushReplacement('/');
   }
 

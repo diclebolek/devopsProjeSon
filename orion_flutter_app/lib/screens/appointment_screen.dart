@@ -11,6 +11,7 @@ import 'package:hairsalon_flutter/models/employee.dart';
 import 'package:hairsalon_flutter/models/service.dart';
 
 import 'package:hairsalon_flutter/services/db_service.dart';
+import 'package:hairsalon_flutter/services/demo_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:logger/logger.dart';
 
@@ -333,12 +334,19 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   @override
   void initState() {
     super.initState();
-    // Varsayılan değerleri ayarla
+    // Varsayılan: bugün 12:00 (demo ile uyumlu)
     _selectedDate = DateTime.now();
-    _selectedTime = const TimeOfDay(hour: 10, minute: 0);
+    _selectedTime = const TimeOfDay(hour: 12, minute: 0);
 
-    // Supabase bağlantısını test et
-    _testSupabaseConnection();
+    // Anında demo hizmet/çalışan
+    _services = DemoData.services();
+    _employees = DemoData.employees();
+    if (_services.isNotEmpty) {
+      _selectedService = _services.first.serviceName;
+    }
+    if (_employees.isNotEmpty) {
+      _selectedEmployee = _employees.first.fullName;
+    }
 
     _loadData();
     _loadIsletme();
@@ -408,137 +416,58 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
   Future<void> _loadServices() async {
     if (!mounted) return;
 
-    logger.d('Hizmet yükleme başladı');
+    // Demo ile başla — boş/yavaş ekran olmasın
+    if (_services.isEmpty || _employees.isEmpty) {
+      setState(() {
+        _services = DemoData.services();
+        _employees = DemoData.employees();
+        _selectedService ??= _services.isNotEmpty ? _services.first.serviceName : null;
+        _selectedEmployee ??=
+            _employees.isNotEmpty ? _employees.first.fullName : null;
+        _isLoading = false;
+      });
+    }
+
     setState(() {
       _isLoading = true;
     });
 
     await _ensureIsletmeId();
-    logger.d('İşletme ID: $_isletmeId');
 
-    // Hizmetler: menu_hizmet_icerigi tablosundan Supabase üzerinden yükle
-    List<Service> services = [];
+    List<Service> services = List.from(_services);
     try {
       if (_isletmeId != null && _isletmeId!.isNotEmpty) {
-        logger.d('Supabase\'den hizmetler yükleniyor...');
-        // Yeni DbService metodunu kullan
-        services = await DbService.getServicesFromSupabase(_isletmeId!);
-        logger.d('Supabase\'den ${services.length} hizmet yüklendi');
-
-        if (services.isEmpty) {
-          logger.w('Supabase\'den hizmet bulunamadı, fallback deneniyor...');
-          // Hizmet bulunamadıysa fallback olarak eski metodu dene
-          services = await DbService.getServices();
-          logger.d('Fallback ile ${services.length} hizmet yüklendi');
-        }
-      } else {
-        logger.w('İşletme ID yok, eski metot kullanılıyor...');
-        // isletme_id yoksa eski metodu kullan
-        services = await DbService.getServices();
-        logger.d('Eski metot ile ${services.length} hizmet yüklendi');
+        final remote = await DbService.getServicesFromSupabase(_isletmeId!);
+        if (remote.isNotEmpty) services = remote;
       }
-    } catch (e) {
-      logger.e('Hizmet yükleme hatası: $e');
-      // Hata durumunda eski metodu dene
-      try {
-        services = await DbService.getServices();
-        logger.d(
-          'Hata sonrası fallback ile ${services.length} hizmet yüklendi',
-        );
-      } catch (fallbackError) {
-        logger.e('Fallback hizmet yükleme hatası: $fallbackError');
-        services = [];
-      }
-    }
+    } catch (_) {}
+    if (services.isEmpty) services = DemoData.services();
 
-    // Çalışanlar: Supabase 'calisanlar' üzerinden
-    final employees = <Employee>[];
+    final employees = <Employee>[...DemoData.employees()];
     try {
       if (_isletmeId != null && _isletmeId!.isNotEmpty) {
-        logger.d('Supabase\'den çalışanlar yükleniyor...');
-        // Eğer hizmet seçilmişse, o hizmete göre çalışanları getir
-        if (_selectedService != null && _selectedService!.isNotEmpty) {
-          employees.addAll(
-            await DbService.getEmployeesByServiceFromSupabase(
-              _isletmeId!,
-              _selectedService!,
-            ),
-          );
-          logger.d('Hizmete göre ${employees.length} çalışan yüklendi');
-        } else {
-          logger.d('Tüm aktif çalışanlar yükleniyor...');
-          // Hizmet seçilmemişse tüm aktif çalışanları getir
-          final supa = Supabase.instance.client;
-          final rows = await supa
-              .from('calisanlar')
-              .select(
-                'id, ad, soyad, hizmet, uzmanlik, beceriler, resim_url, sira, aktif, created_at',
-              )
-              .eq('isletme_id', _isletmeId!)
-              .eq('aktif', true)
-              .order('sira', ascending: true)
-              .order('created_at', ascending: true);
-
-          for (final row in rows) {
-            employees.add(
-              Employee(
-                id: (row['id'] as num?)?.toInt(),
-                firstName: row['ad'] ?? '',
-                lastName: row['soyad'] ?? '',
-                expertise: row['uzmanlik'] ?? 'Genel',
-                skills: row['beceriler'] ?? '',
-                prolificacy: null,
-                dailyEarnings: null,
-                serviceId: null,
-                email: null,
-                phone: null,
-                isActive: row['aktif'] ?? true,
-                hireDate: row['created_at'] != null
-                    ? DateTime.parse(row['created_at'].toString())
-                    : null,
-                profileImage: (row['resim_url'] as String?),
-              ),
-            );
-          }
-          logger.d('Tüm çalışanlardan ${employees.length} yüklendi');
-        }
-      } else {
-        logger.w('İşletme ID yok, eski çalışan yükleme metodu kullanılıyor...');
-        // isletme_id yoksa eski metodu kullan
-        employees.addAll(await DbService.getEmployees());
-        logger.d('Eski metot ile ${employees.length} çalışan yüklendi');
-      }
-    } catch (e) {
-      logger.e('Çalışan yükleme hatası: $e');
-      // Hata durumunda eski metodu dene
-      try {
-        employees.addAll(await DbService.getEmployees());
-        logger.d(
-          'Hata sonrası fallback ile ${employees.length} çalışan yüklendi',
+        final remoteEmps = await DbService.getEmployeesByServiceFromSupabase(
+          _isletmeId!,
+          _selectedService ?? services.first.serviceName,
         );
-      } catch (fallbackError) {
-        logger.e('Fallback çalışan yükleme hatası: $fallbackError');
+        if (remoteEmps.isNotEmpty) {
+          employees
+            ..clear()
+            ..addAll(remoteEmps);
+        }
       }
-    }
+    } catch (_) {}
 
     if (mounted) {
       setState(() {
-        _employees = employees;
         _services = services;
+        _employees = employees;
+        _selectedService ??=
+            services.isNotEmpty ? services.first.serviceName : null;
+        _selectedEmployee ??=
+            employees.isNotEmpty ? employees.first.fullName : null;
         _isLoading = false;
       });
-
-      logger.d(
-        'State güncellendi: ${services.length} hizmet, ${employees.length} çalışan',
-      );
-
-      // Hizmetler yüklendiyse ve hizmet seçilmemişse ilk hizmeti seç
-      if (_services.isNotEmpty && _selectedService == null) {
-        _selectedService = _services.first.serviceName;
-        logger.d('İlk hizmet seçildi: $_selectedService');
-        // Hizmete göre çalışanları yükle ve ilk çalışanı seç
-        await _reloadEmployeesByHizmet(_selectedService);
-      }
     }
   }
 

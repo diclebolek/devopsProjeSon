@@ -8,6 +8,7 @@ import 'package:hairsalon_flutter/models/appointment.dart';
 import 'package:hairsalon_flutter/models/employee.dart';
 import 'package:hairsalon_flutter/models/employee_performance.dart';
 import 'package:hairsalon_flutter/services/db_service.dart';
+import 'package:hairsalon_flutter/services/demo_data.dart';
 import 'package:hairsalon_flutter/constants/colors.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -279,10 +280,16 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Future<List<Appointment>> _getAppointmentsFromSupabase() async {
+    // Demo anında — admin UI boş/yavaş açılmasın
+    return DemoData.appointments();
+  }
+
+  Future<List<Appointment>> _getAppointmentsFromSupabaseRemoteUnused() async {
+    final demo = DemoData.appointments();
     try {
       await _ensureIsletmeId();
       if (_isletmeId == null) {
-        return [];
+        return demo;
       }
 
       final client = Supabase.instance.client;
@@ -296,11 +303,7 @@ class _AdminScreenState extends State<AdminScreen> {
             )
             .limit(1);
       } catch (e) {
-        // Hata detaylarını göster
-        if (e.toString().contains('PGRST205')) {
-        } else if (e.toString().contains('permission denied')) {}
-        // Eğer randevu tablosu yoksa boş liste döndür
-        return [];
+        return demo;
       }
 
       // Ana sorgu - önce ilişkisel dene; hata olursa ilişkisel olmayan basit sorguya düş
@@ -426,19 +429,9 @@ class _AdminScreenState extends State<AdminScreen> {
         );
       }
 
-      return list;
+      return list.isNotEmpty ? list : demo;
     } catch (e) {
-      // Hata durumunda kullanıcıya bilgi ver
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Randevu verileri yüklenirken hata: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
-      }
-      return [];
+      return DemoData.appointments();
     }
   }
 

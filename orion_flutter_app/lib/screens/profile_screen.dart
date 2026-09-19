@@ -19,6 +19,7 @@ import '../models/appointment.dart';
 // import '../models/service.dart';
 // import '../models/employee.dart';
 import '../services/db_service.dart';
+import '../services/demo_data.dart';
 import 'home_screen.dart' as home show CommonAppBar;
 import 'package:image_picker/image_picker.dart';
 import 'dart:ui'; // Added for ImageFilter
@@ -79,10 +80,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    _seedDemoProfileFields();
     _loadUserAppointments();
     _loadServicesAndEmployees();
     _loadIsletme();
     _loadSupabaseCustomer();
+  }
+
+  void _seedDemoProfileFields() {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final customer = auth.currentCustomer ?? DemoData.demoCustomer();
+    _firstNameController.text = customer.firstName;
+    _lastNameController.text = customer.lastName;
+    _emailController.text = customer.email;
+    _phoneController.text =
+        customer.phone.isNotEmpty ? customer.phone : DemoData.demoPhone;
+    _supaCustomer = {
+      'customerid': customer.customerId ?? 1001,
+      'firstname': customer.firstName,
+      'lastname': customer.lastName,
+      'email': customer.email,
+      'phone': customer.phone,
+      'address': customer.address,
+      'profil_fotografi': DemoData.image('profile-avatar', w: 300, h: 300),
+    };
+    _isletme = DemoData.isletme();
+    _userAppointments = DemoData.profileAppointments(customer.email);
+    _isLoadingAppointments = false;
   }
 
   @override
@@ -645,57 +669,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // Navigation helpers to avoid triggering navigation during pointer/mouse updates
 
-  // İşletme bilgilerini Supabase'den yükle
+  // İşletme bilgilerini yükle (önce demo, sonra isteğe bağlı remote)
   Future<void> _loadIsletme() async {
     if (!mounted) return;
-
+    _safeSetState(() => _isletme = DemoData.isletme());
     try {
-      final resolvedIsletmeId = await DbService.resolveIsletmeId(tip: 'gym');
-      if (resolvedIsletmeId != null) {
-        final isletme = await DbService.getIsletmeById(resolvedIsletmeId);
-        if (mounted) {
-          _safeSetState(() {
-            _isletme = isletme;
-          });
+      final id = await DbService.resolveIsletmeId();
+      if (id != null) {
+        final data = await DbService.getIsletmeById(id);
+        if (data != null && mounted) {
+          _safeSetState(() => _isletme = {...DemoData.isletme(), ...data});
         }
       }
-    } catch (_) {
-      // Sessizce fallback'e bırak
-    }
+    } catch (_) {}
   }
 
-  // Müşteri bilgilerini Supabase'den yükle
   Future<void> _loadSupabaseCustomer() async {
     if (!mounted) return;
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final customer = auth.currentCustomer ?? DemoData.demoCustomer();
+    _safeSetState(() {
+      _firstNameController.text = customer.firstName;
+      _lastNameController.text = customer.lastName;
+      _emailController.text = customer.email;
+      _phoneController.text =
+          customer.phone.isNotEmpty ? customer.phone : DemoData.demoPhone;
+      _supaCustomer ??= {
+        'customerid': customer.customerId ?? 1001,
+        'firstname': customer.firstName,
+        'lastname': customer.lastName,
+        'email': customer.email,
+        'phone': customer.phone,
+        'profil_fotografi': DemoData.image('profile-avatar', w: 300, h: 300),
+      };
+    });
 
     try {
       final client = Supabase.instance.client;
       final user = client.auth.currentUser;
-
       if (user != null && user.email != null) {
-        // Müşteri bilgilerini musteriler tablosundan getir
         final customerData = await client
             .from('musteriler')
             .select('*')
             .eq('email', user.email!)
             .maybeSingle();
-
         if (customerData != null) {
           _safeSetState(() {
             _supaCustomer = customerData;
-            // Controller'ları doldur
-            _firstNameController.text = (customerData['firstname'] ?? '')
-                .toString();
-            _lastNameController.text = (customerData['lastname'] ?? '')
-                .toString();
-            _emailController.text = (customerData['email'] ?? '').toString();
-            _phoneController.text = (customerData['phone'] ?? '').toString();
+            _firstNameController.text =
+                (customerData['firstname'] ?? customer.firstName).toString();
+            _lastNameController.text =
+                (customerData['lastname'] ?? customer.lastName).toString();
+            _emailController.text =
+                (customerData['email'] ?? customer.email).toString();
+            _phoneController.text =
+                (customerData['phone'] ?? customer.phone).toString();
           });
         }
       }
-    } catch (e) {
-      // Müşteri bilgileri yüklenirken hata oluştu
-    }
+    } catch (_) {}
   }
 
   // Profil fotoğrafını değiştir
@@ -839,183 +871,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!mounted) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final customer = authProvider.currentCustomer;
+    final customer =
+        authProvider.currentCustomer ?? DemoData.demoCustomer();
 
-    if (customer == null) {
-      if (mounted) {
-        setState(() {
-          _userAppointments = [];
-          _isLoadingAppointments = false;
-        });
-      }
-      return;
-    }
-
+    // Anında demo randevular (UI boş/yavaş kalmasın)
+    final demo = DemoData.profileAppointments(customer.email);
     if (mounted) {
       setState(() {
-        _isLoadingAppointments = true;
+        _userAppointments = demo;
+        _isLoadingAppointments = false;
       });
     }
 
-    // Timeout ekle - 10 saniye sonra loading'i durdur
-    Timer? timeoutTimer;
-    timeoutTimer = Timer(const Duration(seconds: 10), () {
-      if (mounted && _isLoadingAppointments) {
-        setState(() {
-          _isLoadingAppointments = false;
-        });
+    // Arka planda kısa süreli remote dene; doluysa güncelle
+    try {
+      final remote = await Future.any([
+        _fetchRemoteAppointments(customer),
+        Future.delayed(const Duration(seconds: 2), () => <Appointment>[]),
+      ]);
+      if (remote.isNotEmpty && mounted) {
+        setState(() => _userAppointments = remote);
       }
-    });
+    } catch (_) {}
+  }
 
+  Future<List<Appointment>> _fetchRemoteAppointments(dynamic customer) async {
     try {
       List<Appointment> userAppointments = [];
-
-      // Önce Supabase'den randevuları getirmeye çalış
       try {
-        final client = Supabase.instance.client;
-        final isletmeId = await DbService.resolveIsletmeId();
-
-        int? effectiveCustomerId;
-        // Supabase müşteri ID'si öncelikli
-        final dynamic supaIdRaw = _supaCustomer?['customerid'];
-        if (supaIdRaw != null) {
-          effectiveCustomerId = int.tryParse(supaIdRaw.toString());
-        }
-        // AuthProvider'dan gelirse ikinci öncelik
-        effectiveCustomerId ??= customer.customerId;
-        // Hâlâ yoksa email ile musteriler tablosundan bul
-        if (effectiveCustomerId == null &&
-            client.auth.currentUser?.email != null) {
-          try {
-            final musteri = await client
-                .from('musteriler')
-                .select('customerid')
-                .eq('email', client.auth.currentUser!.email!)
-                .maybeSingle();
-            if (musteri != null && musteri['customerid'] != null) {
-              effectiveCustomerId = int.tryParse(
-                musteri['customerid'].toString(),
-              );
-            }
-          } catch (_) {}
-        }
-
-        if (effectiveCustomerId != null) {
-          Future<List<dynamic>> fetchWith({bool withIsletme = true}) async {
-            final int customerId = effectiveCustomerId!;
-
-            var query = client
-                .from('randevu')
-                .select(
-                  'randevu_id, customerid, calisan_id, hizmet_id, appointment_datetime, process, total_price, approval_status, notes, rating, rating_comment',
-                )
-                .eq('customerid', customerId);
-            if (withIsletme && isletmeId != null) {
-              query = query.eq('isletme_id', isletmeId);
-            }
-            return await query.order('appointment_datetime', ascending: false);
-          }
-
-          List<dynamic> rows = [];
-          try {
-            rows = await fetchWith(withIsletme: true);
-          } catch (e) {
-            // Sessiz geç: aşağıda isletme filtresi olmadan tekrar denenecek
-          }
-          if (rows.isEmpty) {
-            try {
-              rows = await fetchWith(withIsletme: false);
-            } catch (e) {
-              // Sessiz geç: Supabase randevu yükleme hatası durumunda legacy'e düşülecek
-            }
-          }
-
-          if (rows.isNotEmpty) {
-            final list = rows.cast<Map<String, dynamic>>();
-
-            // İsim çözümleme için ID setleri
-            final Set<String> hizmetIds = {
-              for (final m in list)
-                if (m['hizmet_id'] != null) m['hizmet_id'].toString(),
-            };
-            final Set<String> calisanIds = {
-              for (final m in list)
-                if (m['calisan_id'] != null) m['calisan_id'].toString(),
-            };
-
-            // Hizmet adlarını getir
-            final Map<String, String> hizmetMap = {};
-            if (hizmetIds.isNotEmpty) {
-              try {
-                final hRows = await client
-                    .from('menu_hizmet_icerigi')
-                    .select('menu_hizmet_icerigi_id, hizmet')
-                    .inFilter('menu_hizmet_icerigi_id', hizmetIds.toList());
-                for (final r in (hRows as List)) {
-                  final rm = r as Map<String, dynamic>;
-                  final key = rm['menu_hizmet_icerigi_id']?.toString();
-                  final val = rm['hizmet']?.toString();
-                  if (key != null && val != null) hizmetMap[key] = val;
-                }
-              } catch (_) {}
-            }
-
-            // Çalışan adlarını getir
-            final Map<String, String> calisanMap = {};
-            if (calisanIds.isNotEmpty) {
-              try {
-                final cRows = await client
-                    .from('calisanlar')
-                    .select('id, ad, soyad')
-                    .inFilter('id', calisanIds.toList());
-                for (final r in (cRows as List)) {
-                  final rm = r as Map<String, dynamic>;
-                  final key = rm['id']?.toString();
-                  final ad = (rm['ad'] as String?) ?? '';
-                  final soyad = (rm['soyad'] as String?) ?? '';
-                  if (key != null) calisanMap[key] = '$ad $soyad'.trim();
-                }
-              } catch (_) {}
-            }
-
-            userAppointments = list.map((m) {
-              final hizmetId = m['hizmet_id']?.toString();
-              final calisanIdStr = m['calisan_id']?.toString();
-              return Appointment(
-                appointmentId: null,
-                randevuId: (m['randevu_id'] ?? '').toString(),
-                calisanId: int.tryParse(calisanIdStr ?? ''),
-                customerName: '${customer.firstName} ${customer.lastName}',
-                employeeName: calisanIdStr != null
-                    ? (calisanMap[calisanIdStr] ?? '')
-                    : '',
-                serviceName: hizmetId != null
-                    ? (hizmetMap[hizmetId] ?? '')
-                    : '',
-                process: _mapProcess(m['process'] as int?),
-                totalPrice: (m['total_price'] as num?)?.toDouble() ?? 0.0,
-                appointmentDateTime: DateTime.parse(
-                  m['appointment_datetime'] as String,
-                ),
-                approvalStatus: (m['approval_status'] as String?) ?? 'Pending',
-                rating: (m['rating'] as int?),
-                ratingComment: (m['rating_comment'] as String?),
-                createdAt: DateTime.now(),
-                updatedAt: DateTime.now(),
-                notes: (m['notes'] as String?) ?? '',
-                customerPhone: '',
-                customerEmail: customer.email,
-              );
-            }).toList();
-          }
-        } else {}
-      } catch (e) {
-        // Supabase randevu yükleme hatası
-        userAppointments = [];
-      }
-
-      // Supabase'den veri gelmezse legacy veritabanından dene
-      if (userAppointments.isEmpty) {
         if (customer.customerId != null) {
           userAppointments = await DbService.getAppointmentsByCustomerId(
             customer.customerId!,
@@ -1026,23 +909,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             customer.email,
           );
         }
-      } else {}
-
-      if (mounted) {
-        timeoutTimer.cancel();
-        setState(() {
-          _userAppointments = userAppointments;
-          _isLoadingAppointments = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        timeoutTimer.cancel();
-        setState(() {
-          _isLoadingAppointments = false;
-          _userAppointments = [];
-        });
-      }
+      } catch (_) {}
+      return userAppointments;
+    } catch (_) {
+      return [];
     }
   }
 
