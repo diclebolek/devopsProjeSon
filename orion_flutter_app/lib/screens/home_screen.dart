@@ -393,21 +393,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _startAnimations() {
-    // Staggered animations
-    Future.delayed(const Duration(milliseconds: 300), () {
-      _fadeController.forward();
+    // Hızlı staggered animasyon
+    Future.delayed(const Duration(milliseconds: 50), () {
+      if (mounted) _fadeController.forward();
     });
-
-    Future.delayed(const Duration(milliseconds: 600), () {
-      _slideController.forward();
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) _slideController.forward();
     });
-
-    Future.delayed(const Duration(milliseconds: 900), () {
-      _scaleController.forward();
+    Future.delayed(const Duration(milliseconds: 150), () {
+      if (mounted) _scaleController.forward();
     });
-
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      _bounceController.forward();
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) _bounceController.forward();
     });
   }
 
@@ -5802,33 +5799,23 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
           : null,
       title: Row(
         children: [
-          if (logoUrl != null && logoUrl!.isNotEmpty)
-            Container(
-              width: 40,
-              height: 40,
-              margin: const EdgeInsets.only(right: 12),
-              child: logoUrl!.startsWith('http')
-                  ? Image.network(
-                      logoUrl!,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) =>
-                          const Icon(Icons.business, color: Colors.grey),
-                    )
-                  : Image.asset(
-                      logoUrl!,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) =>
-                          const Icon(Icons.business, color: Colors.grey),
-                    ),
-            ),
-          Text(
-            businessName,
-            style: TextStyle(
-              color: isDarkMode ? Colors.white : Colors.black87,
-              fontSize: 20,
-              fontWeight: FontWeight.w400,
-              fontStyle: FontStyle.normal,
-              fontFamily: 'Cormorant',
+          Icon(
+            Icons.fitness_center,
+            size: 28,
+            color: SiriusColors.accent,
+          ),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              businessName,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: isDarkMode ? Colors.white : Colors.black87,
+                fontSize: 20,
+                fontWeight: FontWeight.w400,
+                fontStyle: FontStyle.normal,
+                fontFamily: 'Cormorant',
+              ),
             ),
           ),
         ],

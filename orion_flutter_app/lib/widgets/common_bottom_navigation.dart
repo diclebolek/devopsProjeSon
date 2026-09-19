@@ -445,27 +445,23 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
                 )),
       title: Row(
         children: [
-          if (logoUrl != null && logoUrl!.isNotEmpty)
-            (logoUrl!.startsWith('http')
-                ? Image.network(
-                    logoUrl!,
-                    height: 40,
-                    width: 40,
-                    errorBuilder: (_, __, ___) =>
-                        const Icon(Icons.storefront_rounded, size: 32),
-                  )
-                : const Icon(Icons.storefront_rounded, size: 32))
-          else
-            const Icon(Icons.storefront_rounded, size: 32),
+          Icon(
+            Icons.fitness_center,
+            size: 28,
+            color: SiriusColors.accent,
+          ),
           const SizedBox(width: 12),
-          Text(
-            businessName,
-            style: TextStyle(
-              color: isDarkMode ? Colors.white : Colors.black87,
-              fontSize: 18,
-              fontWeight: FontWeight.w400,
-              fontStyle: FontStyle.normal,
-              fontFamily: 'Cormorant',
+          Flexible(
+            child: Text(
+              businessName,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: isDarkMode ? Colors.white : Colors.black87,
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+                fontStyle: FontStyle.normal,
+                fontFamily: 'Cormorant',
+              ),
             ),
           ),
         ],
