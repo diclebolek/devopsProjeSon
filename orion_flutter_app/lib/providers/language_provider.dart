@@ -365,23 +365,23 @@ class LanguageProvider extends ChangeNotifier {
       'see_all': 'See All',
       'view_details': 'View Details',
 
-      // Card content texts
-      'beauty_meets_serenity': 'Where Beauty Meets Serenity',
+      // Card content texts (gym / Orion)
+      'beauty_meets_serenity': 'Expert Trainers',
       'beauty_meets_serenity_desc':
-          'At Orion, we create a peaceful escape from the hustle of daily life. Our tranquil atmosphere and expert care are designed to help you relax, rejuvenate, and rediscover your inner calm.',
-      'your_beauty_our_galaxy': 'Your Beauty, Our Galaxy',
+          'Reach your goals safely and faster with our certified coaching team.',
+      'your_beauty_our_galaxy': 'Modern Equipment',
       'your_beauty_our_galaxy_desc':
-          'You are at the center of everything we do. Our personalized treatments celebrate your unique beauty, enhancing your natural radiance with the finest products and techniques.',
-      'glow_beyond_stars': 'Glow Beyond the Stars with Orion',
+          'Train efficiently with up-to-date machines and a motivating gym floor.',
+      'glow_beyond_stars': 'Flexible Programs',
       'glow_beyond_stars_desc':
-          'We go beyond ordinary beauty care to make you feel extraordinary. At Orion, every treatment is crafted to leave you glowing with confidence.',
+          'Morning to evening classes and packages for every fitness level.',
 
       // About Us section
       'home_about_us': 'About Us',
       'home_about_us_description':
-          'At Orion, we believe that true beauty comes from within, and we\'re here to help you shine like the star you are.',
+          'At Orion Gym we help you build strength, confidence, and lasting habits.',
       'about_us_subtitle':
-          'Our mission is to empower you to look and feel your best.',
+          'Our mission is to coach every member toward their best self.',
       'about_us_p1':
           'At Orion, we combine our passion for beauty with advanced techniques to deliver exceptional services. Our team of skilled professionals is dedicated to providing a personalized experience tailored to your unique needs.',
       'about_us_p2':
@@ -834,23 +834,23 @@ class LanguageProvider extends ChangeNotifier {
       'see_all': 'Tümünü Gör',
       'view_details': 'Detayları Görüntüle',
 
-      // Card content texts
-      'beauty_meets_serenity': 'Güzellik Huzurla Buluşuyor',
+      // Card content texts (gym / Orion)
+      'beauty_meets_serenity': 'Uzman Antrenörler',
       'beauty_meets_serenity_desc':
-          'Orion\'ta, günlük hayatın koşuşturmasından huzurlu bir kaçamak yaratıyoruz. Huzurlu atmosferimiz ve uzman bakımımız, rahatlamanıza, yenilenmenize ve iç huzurunuzu yeniden keşfetmenize yardımcı olmak için tasarlanmıştır.',
-      'your_beauty_our_galaxy': 'Güzelliğiniz, Galaksimiz',
+          'Sertifikalı ekibimizle hedeflerinize güvenli ve hızlı ulaşın.',
+      'your_beauty_our_galaxy': 'Modern Ekipman',
       'your_beauty_our_galaxy_desc':
-          'Yaptığımız her şeyin merkezinde siz varsınız. Kişiselleştirilmiş tedavilerimiz, benzersiz güzelliğinizi kutlar ve en kaliteli ürünler ve tekniklerle doğal parlaklığınızı artırır.',
-      'glow_beyond_stars': 'Orion ile Yıldızlardan Öteye Parlayın',
+          'Güncel aletler ve motive edici salon ortamıyla verimli antrenman.',
+      'glow_beyond_stars': 'Esnek Programlar',
       'glow_beyond_stars_desc':
-          'Sıradan güzellik bakımının ötesine geçerek kendinizi olağanüstü hissetmenizi sağlıyoruz. Orion\'ta, her tedavi güvenle parlamanız için özenle hazırlanmıştır.',
+          'Sabah-akşam dersleri ve her seviyeye uygun paketler.',
 
       // About Us section
       'home_about_us': 'Hakkımızda',
       'home_about_us_description':
-          'Orion\'da, gerçek güzelliğin içten geldiğine inanıyoruz ve yıldız gibi parlamanıza yardım etmek için buradayız.',
+          'Orion Gym olarak gücünüzü, özgüveninizi ve kalıcı alışkanlıklarınızı birlikte inşa ediyoruz.',
       'about_us_subtitle':
-          'Misyonumuz, en iyi görünmenizi ve hissetmenizi sağlamaktır.',
+          'Misyonumuz, her üyeyi en iyi haline taşımak.',
       'about_us_p1':
           'Orion\'ta, güzelliğe olan tutkumuzu ileri tekniklerle birleştirerek üstün hizmetler sunuyoruz. Uzman ekibimiz, benzersiz ihtiyaçlarınıza göre kişiselleştirilmiş bir deneyim sunmaya adanmıştır.',
       'about_us_p2':

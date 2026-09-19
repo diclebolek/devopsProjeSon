@@ -14,6 +14,7 @@ import '../models/employee.dart';
 import '../models/customer.dart';
 import '../providers/theme_provider.dart';
 import '../services/demo_data.dart';
+import '../services/local_db_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,7 +26,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: DemoData.demoEmail);
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
@@ -65,6 +66,7 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void initState() {
     super.initState();
+    _restoreRememberedUser();
 
     // Initialize animation controllers (kısa süre — hızlı ilk paint)
     _fadeController = AnimationController(
@@ -249,13 +251,22 @@ class _LoginScreenState extends State<LoginScreen>
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          // Animated logo with continuous rotation
+                                          // Navbar ile aynı fitness ikonu (dönen yuvarlak)
+                                          // Müşteri/admin ayrımı yok — marka sembolü tek:
+                                          // CommonAppBar'daki Icons.fitness_center
                                           AnimatedBuilder(
                                             animation: Listenable.merge([
                                               _logoController,
                                               _logoRotationController,
                                             ]),
                                             builder: (context, child) {
+                                              final size =
+                                                  MediaQuery.of(context)
+                                                              .size
+                                                              .width <
+                                                          360
+                                                      ? 80.0
+                                                      : 100.0;
                                               return Transform.scale(
                                                 scale:
                                                     _logoScaleAnimation.value,
@@ -267,61 +278,38 @@ class _LoginScreenState extends State<LoginScreen>
                                                       _continuousLogoRotation
                                                               .value *
                                                           2 *
-                                                          3.14159, // 2π radyan = 360 derece
+                                                          3.14159,
                                                   child: Container(
-                                                    width:
-                                                        MediaQuery.of(
-                                                              context,
-                                                            ).size.width <
-                                                            360
-                                                        ? 80
-                                                        : 100,
-                                                    height:
-                                                        MediaQuery.of(
-                                                              context,
-                                                            ).size.width <
-                                                            360
-                                                        ? 80
-                                                        : 100,
+                                                    width: size,
+                                                    height: size,
                                                     decoration: BoxDecoration(
                                                       shape: BoxShape.circle,
+                                                      color: SiriusColors.accent
+                                                          .withValues(
+                                                            alpha: 0.15,
+                                                          ),
                                                       border: Border.all(
-                                                        color: _isDarkMode
-                                                            ? Colors.white
-                                                            : Colors.white,
-                                                        width: 4,
-                                                      ),
-                                                      image: DecorationImage(
-                                                        image:
-                                                            (_isletme != null &&
-                                                                (_isletme!['logo_url']
-                                                                            as String?)
-                                                                        ?.isNotEmpty ==
-                                                                    true)
-                                                            ? NetworkImage(
-                                                                _isletme!['logo_url'],
-                                                              )
-                                                            : const NetworkImage(
-                                                                    'https://placehold.co/200x200/png',
-                                                                  )
-                                                                  as ImageProvider,
-                                                        fit: BoxFit.cover,
+                                                        color:
+                                                            SiriusColors.accent,
+                                                        width: 3,
                                                       ),
                                                       boxShadow: [
                                                         BoxShadow(
-                                                          color:
-                                                              (_isDarkMode
-                                                                      ? Colors
-                                                                            .white
-                                                                      : Colors
-                                                                            .white)
-                                                                  .withValues(
-                                                                    alpha: 0.6,
-                                                                  ),
-                                                          blurRadius: 8,
+                                                          color: SiriusColors
+                                                              .accent
+                                                              .withValues(
+                                                                alpha: 0.35,
+                                                              ),
+                                                          blurRadius: 12,
                                                           spreadRadius: 2,
                                                         ),
                                                       ],
+                                                    ),
+                                                    child: Icon(
+                                                      Icons.fitness_center,
+                                                      size: size * 0.45,
+                                                      color:
+                                                          SiriusColors.accent,
                                                     ),
                                                   ),
                                                 ),
@@ -1573,12 +1561,46 @@ class _LoginScreenState extends State<LoginScreen>
 
   // Şifre girilmeden oturum açar: e-posta varsa onu, yoksa demo hesabını kullanır.
   // Hem müşteri hem admin rolü için çalışır, seçili role göre yönlendirir.
+  Future<void> _restoreRememberedUser() async {
+    try {
+      final remembered = await LocalDbService.instance.loadRememberedUser();
+      if (!mounted) return;
+      if (remembered != null) {
+        setState(() {
+          _rememberMe = true;
+          _emailController.text = remembered.email;
+          _selectedRole = remembered.role == 'admin' ? 'admin' : 'customer';
+        });
+      } else {
+        _emailController.text = DemoData.demoEmail;
+      }
+    } catch (_) {
+      if (mounted) {
+        _emailController.text = DemoData.demoEmail;
+      }
+    }
+  }
+
+  Future<void> _persistRememberMe() async {
+    final email = _emailController.text.trim().isEmpty
+        ? (_selectedRole == 'admin' ? 'admin@orion.com' : DemoData.demoEmail)
+        : _emailController.text.trim();
+    await LocalDbService.instance.saveRememberedUser(
+      email: email,
+      role: _selectedRole,
+      remember: _rememberMe,
+    );
+  }
+
+  // Şifre girilmeden oturum açar: e-posta varsa onu, yoksa demo hesabını kullanır.
   // Hem müşteri hem admin rolü için çalışır, seçili role göre yönlendirir.
   void _performPasswordlessLogin() {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final email = _emailController.text.trim().isEmpty
         ? (_selectedRole == 'admin' ? 'admin@orion.com' : DemoData.demoEmail)
         : _emailController.text.trim();
+
+    _persistRememberMe();
 
     if (_selectedRole == 'admin') {
       authProvider.loginAdmin(DemoData.demoAdmin(email: email));
@@ -1648,6 +1670,7 @@ class _LoginScreenState extends State<LoginScreen>
 
         // Buraya gelindiyse Supabase + rol veya legacy admin doğrulandı → admin olarak devam et
         if (!mounted) return;
+        await _persistRememberMe();
         final adminEmployee = Employee(
           id: 1,
           firstName: 'Admin',
@@ -1679,6 +1702,7 @@ class _LoginScreenState extends State<LoginScreen>
 
         if (customer != null) {
           if (!mounted) return;
+          await _persistRememberMe();
           authProvider.loginCustomer(customer);
           // Profile sayfasına yönlendir
           _safeNavigatePushReplacement('/profile');

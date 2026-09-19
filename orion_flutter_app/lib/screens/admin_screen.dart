@@ -1121,8 +1121,9 @@ class _AdminScreenState extends State<AdminScreen> {
                           vertical: 12,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                       ),
                     ),
                   ),
@@ -3166,8 +3167,8 @@ class _AdminScreenState extends State<AdminScreen> {
       context: context,
       builder: (context) => Dialog(
         backgroundColor: _isDarkMode
-            ? Colors.grey[900]!.withValues(alpha: 0.95)
-            : Colors.white.withValues(alpha: 0.95),
+            ? Colors.grey[900]!.withValues(alpha: 0.88)
+            : Colors.white.withValues(alpha: 0.88),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
           width: MediaQuery.of(context).size.width < 600
@@ -3718,9 +3719,9 @@ class _AdminScreenState extends State<AdminScreen> {
                                                 : Colors.blue[800],
                                             elevation: 0,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(6),
-                                            ),
+              borderRadius: BorderRadius.circular(6),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                                           ),
                                         ),
                                       ),
@@ -3905,11 +3906,12 @@ class _AdminScreenState extends State<AdminScreen> {
         context: context,
         builder: (context) => Dialog(
           backgroundColor: _isDarkMode
-              ? Colors.grey[900]!.withValues(alpha: 0.95)
-              : Colors.white.withValues(alpha: 0.95),
+              ? Colors.grey[900]!.withValues(alpha: 0.88)
+              : Colors.white.withValues(alpha: 0.88),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
           child: Container(
             width: MediaQuery.of(context).size.width < 600
                 ? double.infinity
@@ -4276,8 +4278,9 @@ class _AdminScreenState extends State<AdminScreen> {
                                         : Colors.blue[800],
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
+              borderRadius: BorderRadius.circular(6),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                                   ),
                                 ),
                               ),
@@ -5905,11 +5908,12 @@ class _AdminScreenState extends State<AdminScreen> {
                 vertical: 16,
               ),
               backgroundColor: themeProvider.isDarkMode
-                  ? const Color(0xFF181818).withValues(alpha: 0.95)
-                  : const Color(0xFFEDECE8).withValues(alpha: 0.95),
+                  ? const Color(0xFF181818).withValues(alpha: 0.88)
+                  : const Color(0xFFEDECE8).withValues(alpha: 0.88),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -6206,7 +6210,7 @@ class _AdminScreenState extends State<AdminScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: _isDarkMode
-            ? const Color(0xFF181818).withValues(alpha: 0.95)
+            ? const Color(0xFF181818).withValues(alpha: 0.88)
             : Colors.white,
         title: Text(
           lang.t('logout'),
@@ -6295,10 +6299,11 @@ class _AdminScreenState extends State<AdminScreen> {
           _dialogSetState = dialogSetState;
           return Dialog(
             backgroundColor: _isDarkMode
-                ? Colors.black.withValues(alpha: 0.95)
-                : Colors.white.withValues(alpha: 0.95),
+                ? Colors.black.withValues(alpha: 0.88)
+                : Colors.white.withValues(alpha: 0.88),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
             ),
             child: Container(
               width: MediaQuery.of(context).size.width < 600
@@ -8036,8 +8041,9 @@ class _AdminScreenState extends State<AdminScreen> {
                                 : 16,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                         ),
                         child: Text(
                           'Kaydet',
@@ -8067,8 +8073,9 @@ class _AdminScreenState extends State<AdminScreen> {
                                 : 16,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                         ),
                         child: Text(
                           'İptal',
@@ -8547,9 +8554,9 @@ class _AdminScreenState extends State<AdminScreen> {
                                                 : Colors.white,
                                             elevation: 8,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                            ),
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                                           ),
                                         ),
                                         child: child!,
@@ -8662,8 +8669,9 @@ class _AdminScreenState extends State<AdminScreen> {
                                       : Colors.white,
                                   elevation: 8,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                                 ),
                               ),
                               child: MediaQuery(
@@ -8728,8 +8736,9 @@ class _AdminScreenState extends State<AdminScreen> {
                               : 16,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                       ),
                       child: Text(
                         Provider.of<LanguageProvider>(
@@ -8762,8 +8771,9 @@ class _AdminScreenState extends State<AdminScreen> {
                               : 16,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                       ),
                       child: Text(
                         Provider.of<LanguageProvider>(
@@ -10001,8 +10011,9 @@ class _AdminScreenState extends State<AdminScreen> {
                       vertical: 8,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
+              borderRadius: BorderRadius.circular(6),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                   ),
                 ),
               ),
@@ -10049,8 +10060,9 @@ class _AdminScreenState extends State<AdminScreen> {
                   vertical: 8,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
+              borderRadius: BorderRadius.circular(6),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
               ),
             ),
           ],
@@ -10285,8 +10297,9 @@ class _AdminScreenState extends State<AdminScreen> {
               backgroundColor: Colors.red.withValues(alpha: 0.1),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
             ),
             child: const Text('Temizle'),
           ),
@@ -10454,8 +10467,9 @@ class _AdminScreenState extends State<AdminScreen> {
         return AlertDialog(
           backgroundColor: _isDarkMode ? Colors.black : Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
           title: Row(
             children: [
               Icon(Icons.language, color: SiriusColors.accent, size: 24),
@@ -10497,8 +10511,9 @@ class _AdminScreenState extends State<AdminScreen> {
                       ? SiriusColors.accent.withValues(alpha: 0.1)
                       : null,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                 ),
                 const SizedBox(height: 8),
                 ListTile(
@@ -10523,8 +10538,9 @@ class _AdminScreenState extends State<AdminScreen> {
                       ? SiriusColors.accent.withValues(alpha: 0.1)
                       : null,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                 ),
               ],
             ),
@@ -10755,10 +10771,11 @@ class _AdminScreenState extends State<AdminScreen> {
           _dialogSetState = dialogSetState;
           return Dialog(
             backgroundColor: _isDarkMode
-                ? Colors.grey[900]!.withValues(alpha: 0.95)
-                : Colors.white.withValues(alpha: 0.95),
+                ? Colors.grey[900]!.withValues(alpha: 0.88)
+                : Colors.white.withValues(alpha: 0.88),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
             ),
             child: Container(
               width: MediaQuery.of(context).size.width < 600

@@ -416,8 +416,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
               minimumSize: const Size(0, 52),
               textStyle: const TextStyle(
                 fontWeight: FontWeight.w400,
@@ -595,8 +596,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
           tileColor: active
               ? SiriusColors.accent.withValues(alpha: 0.08)
               : Colors.transparent,
@@ -1979,9 +1981,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     ? Colors.black
                                                     : Colors.white,
                                                 shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
-                                                ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                                                 titlePadding:
                                                     const EdgeInsets.only(
                                                       left: 20,
@@ -2289,8 +2291,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _showProfileSettingsDialog();
               },
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
               tileColor: const Color(0xFFDEC41F).withValues(alpha: 0.1),
             ),
           ),
@@ -2329,8 +2332,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   vertical: 12,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
               ),
             ),
           ),
@@ -2586,8 +2590,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           vertical: 12,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                       ),
                     ),
                   ),
@@ -2670,11 +2675,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: isDarkMode
-              ? const Color(0xFF181818).withValues(alpha: 0.95)
-              : const Color(0xFFEDECE8).withValues(alpha: 0.95),
+              ? const Color(0xFF181818).withValues(alpha: 0.88)
+              : const Color(0xFFEDECE8).withValues(alpha: 0.88),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
           title: Row(
             children: [
               Icon(Icons.language, color: SiriusColors.accent, size: 24),
@@ -2706,8 +2712,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ? SiriusColors.accent.withValues(alpha: 0.1)
                       : null,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                 ),
                 const SizedBox(height: 8),
                 ListTile(
@@ -2722,8 +2729,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ? SiriusColors.accent.withValues(alpha: 0.1)
                       : null,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                 ),
               ],
             ),
@@ -2784,11 +2792,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             return AlertDialog(
               backgroundColor: themeProvider.isDarkMode
-                  ? const Color(0xFF181818).withValues(alpha: 0.95)
+                  ? const Color(0xFF181818).withValues(alpha: 0.88)
                   : Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -2909,8 +2918,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               backgroundColor: SiriusColors.accent,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                             ),
                           ),
                         ),
@@ -2934,8 +2944,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               side: const BorderSide(color: Colors.red),
                               foregroundColor: Colors.red,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                             ),
                           ),
                         ),
@@ -3011,8 +3022,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     foregroundColor: SiriusColors.accent,
                                     minimumSize: const Size.fromHeight(44),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                                   ),
                                 ),
                               ),
@@ -3054,8 +3066,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         : const Color(0xFFFFA500),
                                     minimumSize: const Size.fromHeight(44),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                                   ),
                                 ),
                               ),
@@ -3340,11 +3353,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             return AlertDialog(
               backgroundColor: themeProvider.isDarkMode
-                  ? const Color(0xFF181818).withValues(alpha: 0.95)
-                  : const Color(0xFFEDECE8).withValues(alpha: 0.95),
+                  ? const Color(0xFF181818).withValues(alpha: 0.88)
+                  : const Color(0xFFEDECE8).withValues(alpha: 0.88),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
               title: Row(
                 children: [
                   Icon(
@@ -3480,8 +3494,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   vertical: 14,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                               ),
                             ),
                           ),
@@ -3517,8 +3532,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   vertical: 14,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                               ),
                             ),
                           ),
@@ -3685,8 +3701,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     minimumSize: const Size.fromHeight(48),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                                   ),
                                 ),
                               ),
@@ -3749,8 +3766,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     minimumSize: const Size.fromHeight(48),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                                   ),
                                 ),
                               ),
@@ -4159,8 +4177,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: _isDarkMode
-              ? const Color(0xFF181818).withValues(alpha: 0.95)
-              : const Color(0xFFEDECE8).withValues(alpha: 0.95),
+              ? const Color(0xFF181818).withValues(alpha: 0.88)
+              : const Color(0xFFEDECE8).withValues(alpha: 0.88),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: BorderSide(color: SiriusColors.accent, width: 2),
@@ -4313,11 +4331,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: _isDarkMode
-              ? const Color(0xFF181818).withValues(alpha: 0.95)
-              : const Color(0xFFEDECE8).withValues(alpha: 0.95),
+              ? const Color(0xFF181818).withValues(alpha: 0.88)
+              : const Color(0xFFEDECE8).withValues(alpha: 0.88),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -4363,8 +4382,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     backgroundColor: Colors.transparent,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                   ),
                   child: Text(
                     Provider.of<LanguageProvider>(
@@ -4717,8 +4737,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             final lang = Provider.of<LanguageProvider>(context, listen: false);
             return AlertDialog(
               backgroundColor: _isDarkMode
-                  ? const Color(0xFF181818).withValues(alpha: 0.95)
-                  : const Color(0xFFEDECE8).withValues(alpha: 0.95),
+                  ? const Color(0xFF181818).withValues(alpha: 0.88)
+                  : const Color(0xFFEDECE8).withValues(alpha: 0.88),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
                 side: BorderSide(color: SiriusColors.accent, width: 2),
@@ -5322,8 +5342,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     side: const BorderSide(color: Colors.green, width: 1.5),
                     backgroundColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                   ),
                   child: Text(
                     lang.t('update'),
@@ -5721,8 +5742,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: _isDarkMode
-              ? const Color(0xFF181818).withValues(alpha: 0.95)
-              : const Color(0xFFEDECE8).withValues(alpha: 0.95),
+              ? const Color(0xFF181818).withValues(alpha: 0.88)
+              : const Color(0xFFEDECE8).withValues(alpha: 0.88),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: BorderSide(color: SiriusColors.accent, width: 2),
@@ -5873,7 +5894,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: _isDarkMode
-            ? const Color(0xFF181818).withValues(alpha: 0.95)
+            ? const Color(0xFF181818).withValues(alpha: 0.88)
             : Colors.white,
         title: Text(
           lang.t('logout'),

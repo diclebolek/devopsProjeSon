@@ -226,8 +226,9 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
               surfaceTintColor: _isDarkMode ? Colors.black : Colors.white,
               elevation: 8,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
             ),
           ),
           child: MediaQuery(
@@ -1687,8 +1688,9 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                 : 8,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                         ),
                       ),
                     ),
@@ -1731,8 +1733,9 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                                 : 8,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                         ),
                       ),
                     ),
@@ -2102,8 +2105,9 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
                           vertical: 12,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                       ),
                     ),
                   ),
@@ -2278,11 +2282,12 @@ class _AppointmentScreenState extends State<AppointmentScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: isDarkMode
-              ? const Color(0xFF181818).withValues(alpha: 0.95)
-              : const Color(0xFFEDECE8).withValues(alpha: 0.95),
+              ? const Color(0xFF181818).withValues(alpha: 0.88)
+              : const Color(0xFFEDECE8).withValues(alpha: 0.88),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
           title: Row(
             children: [
               Icon(Icons.language, color: SiriusColors.accent, size: 24),

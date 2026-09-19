@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../constants/colors.dart';
 
 class ThemeProvider extends ChangeNotifier {
   bool _isDarkMode = false;
@@ -24,13 +25,11 @@ class ThemeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Tema tercihini SharedPreferences'a kaydet
   void _saveThemePreference() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isDarkMode', _isDarkMode);
   }
 
-  // Tema tercihini SharedPreferences'tan yükle
   void _loadThemePreference() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -39,29 +38,45 @@ class ThemeProvider extends ChangeNotifier {
       _isInitialized = true;
       notifyListeners();
     } catch (e) {
-      // Hata durumunda varsayılan değeri kullan (false = light mode)
       _isDarkMode = false;
       _isInitialized = true;
       notifyListeners();
     }
   }
 
-  // Dark mode için tema
   ThemeData get darkTheme => ThemeData(
-    brightness: Brightness.dark,
-    primarySwatch: Colors.blue,
-    scaffoldBackgroundColor: Colors.black,
-    fontFamily: 'Cormorant',
-  );
+        brightness: Brightness.dark,
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.black,
+        fontFamily: 'Cormorant',
+        dialogTheme: DialogThemeData(
+          backgroundColor: SiriusColors.dialogBackground(true),
+          shape: SiriusColors.dialogShape,
+          elevation: 10,
+          shadowColor: SiriusColors.accent.withValues(alpha: 0.25),
+        ),
+        colorScheme: const ColorScheme.dark(
+          primary: SiriusColors.accent,
+          secondary: SiriusColors.accent,
+        ),
+      );
 
-  // Light mode için tema
   ThemeData get lightTheme => ThemeData(
-    brightness: Brightness.light,
-    primarySwatch: Colors.blue,
-    scaffoldBackgroundColor: const Color(0xFFE5E2DB),
-    fontFamily: 'Cormorant',
-  );
+        brightness: Brightness.light,
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: const Color(0xFFE5E2DB),
+        fontFamily: 'Cormorant',
+        dialogTheme: DialogThemeData(
+          backgroundColor: SiriusColors.dialogBackground(false),
+          shape: SiriusColors.dialogShape,
+          elevation: 10,
+          shadowColor: SiriusColors.accent.withValues(alpha: 0.25),
+        ),
+        colorScheme: const ColorScheme.light(
+          primary: SiriusColors.accent,
+          secondary: SiriusColors.accent,
+        ),
+      );
 
-  // Mevcut tema
   ThemeData get currentTheme => _isDarkMode ? darkTheme : lightTheme;
 }

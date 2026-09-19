@@ -17,6 +17,7 @@ import 'widgets/common_bottom_navigation.dart';
 import 'providers/theme_provider.dart';
 import 'providers/language_provider.dart';
 import 'providers/auth_provider.dart';
+import 'services/local_db_service.dart';
 
 import 'models/customer.dart';
 import 'models/employee.dart';
@@ -111,6 +112,10 @@ void main() async {
     (_) {},
     onError: (_) {},
   );
+
+  // Geçici yerel DB (SQLite / web prefs). Asıl veri kaynağı Supabase'tir.
+  // ignore: unawaited_futures
+  LocalDbService.instance.init();
 
   runApp(
     MultiProvider(

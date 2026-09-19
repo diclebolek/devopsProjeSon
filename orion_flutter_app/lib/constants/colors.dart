@@ -40,4 +40,28 @@ class SiriusColors {
 
   // Border ve çizgi renkleri
   static const Color border = Color(0xFF413546); // Kenarlık rengi
+
+  /// Tüm dialog / panel pencereleri için saydam arka plan + tema mavisi border.
+  static Color dialogBackground(bool isDarkMode) => isDarkMode
+      ? const Color(0xFF0C0B09).withValues(alpha: 0.88)
+      : Colors.white.withValues(alpha: 0.90);
+
+  static ShapeBorder get dialogShape => RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: const BorderSide(color: accent, width: 1.5),
+      );
+
+  static BoxDecoration panelDecoration({
+    required bool isDarkMode,
+    double radius = 16,
+    double opacity = 0.88,
+  }) {
+    return BoxDecoration(
+      color: isDarkMode
+          ? const Color(0xFF0C0B09).withValues(alpha: opacity)
+          : Colors.white.withValues(alpha: opacity),
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: accent, width: 1.5),
+    );
+  }
 }

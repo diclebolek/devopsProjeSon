@@ -300,7 +300,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           trValue: _icerikBlok['why_1_desc'] ?? '',
           i18nKey: 'beauty_meets_serenity_desc',
         ),
-        'icon': Icons.spa,
+        'icon': Icons.fitness_center,
       },
       {
         'num': '02',
@@ -312,7 +312,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           trValue: _icerikBlok['why_2_desc'] ?? '',
           i18nKey: 'your_beauty_our_galaxy_desc',
         ),
-        'icon': Icons.star,
+        'icon': Icons.sports_gymnastics,
       },
       {
         'num': '03',
@@ -324,7 +324,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           trValue: _icerikBlok['why_3_desc'] ?? '',
           i18nKey: 'glow_beyond_stars_desc',
         ),
-        'icon': Icons.auto_awesome,
+        'icon': Icons.emoji_events,
       },
     ];
 
@@ -2367,8 +2367,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           vertical: 12,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                       ),
                     ),
                   ),
@@ -3395,11 +3396,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: isDarkMode
-              ? const Color(0xFF181818).withValues(alpha: 0.95)
-              : const Color(0xFFEDECE8).withValues(alpha: 0.95),
+              ? const Color(0xFF181818).withValues(alpha: 0.88)
+              : const Color(0xFFEDECE8).withValues(alpha: 0.88),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
           title: Row(
             children: [
               Icon(Icons.language, color: SiriusColors.accent, size: 24),
@@ -3431,8 +3433,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ? SiriusColors.accent.withValues(alpha: 0.1)
                       : null,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                 ),
                 const SizedBox(height: 8),
                 ListTile(
@@ -3447,8 +3450,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ? SiriusColors.accent.withValues(alpha: 0.1)
                       : null,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
                 ),
               ],
             ),
@@ -3604,10 +3608,8 @@ class _FeatureCardState extends State<FeatureCard>
                       : Colors.black.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: _isHovered
-                        ? SiriusColors.accent
-                        : SiriusColors.surface,
-                    width: _isHovered ? 2.0 : 1.0,
+                    color: SiriusColors.accent,
+                    width: _isHovered ? 2.0 : 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -3751,8 +3753,9 @@ class _TeamMemberCardState extends State<TeamMemberCard>
             child: Card(
               color: SiriusColors.surface,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: SiriusColors.accent, width: 1.5),
+            ),
               elevation: _elevationAnimation.value,
               child: Stack(
                 fit: StackFit.expand,
@@ -3955,7 +3958,7 @@ class _ServiceCardState extends State<ServiceCard>
                     ),
                     decoration: BoxDecoration(
                       color: widget.isDarkMode
-                          ? SiriusColors.surface.withValues(alpha: 0.95)
+                          ? SiriusColors.surface.withValues(alpha: 0.88)
                           : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
