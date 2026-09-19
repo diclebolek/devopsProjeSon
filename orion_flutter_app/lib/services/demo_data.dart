@@ -450,7 +450,8 @@ class DemoData {
         'isim': 'Orion Gym & Fitness',
         'aciklama': 'Spor Salonu & Fitness',
         'banner_url': image('orion-banner'),
-        'logo_url': image('orion-logo'),
+        // Navbar logo ağ görseli kullanmaz — tema rengi fitness ikonu
+        'logo_url': '',
         'arka_plan_url': image('orion-bg'),
         'telefon': '0212 555 00 00',
         'email': 'info@orion.com',
