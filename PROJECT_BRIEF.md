@@ -34,7 +34,9 @@ sentra/testdata/     Rust ve Go'nun paylaştığı sayısal oracle
 
 V1 veri toplama bu dalda çalışır durumda teslim edildi. Ayrıntı: `sentra/docs/v1-data-collection.md` ve `sentra/README.md`.
 
-İzleme kuralı, literatür seçimi ve ihtiyaç listesi `sentra/README.md` ile `sentra/docs/methodology.md` içindedir. Sağlam oturumun dışındaki ISO titreşim bölgeleri bu motora uygulanmaz. Model rakamı, oturum bölmeli testten önce yazılmaz.
+İzleme kuralı, literatür seçimi ve kaynakça `sentra/README.md` ile `sentra/docs/methodology.md` içindedir. Parça fiyatı ve satıcı bağlantısı `sentra/docs/malzeme-listesi.md` içindedir. Sağlam oturumun dışındaki ISO titreşim bölgeleri bu motora uygulanmaz. Model rakamı, oturum bölmeli testten önce yazılmaz.
+
+Hall `rpm` alanı ayrı kanaldır. RMS’i normalize etmez; baskın frekans `rpm/60` ile okunur. Isolation Forest erken uyarıdır ve yalnız sağlam oturumla eğitilir. XGBoost dört sınıf adıdır. Sağlam oturum arıza oturumundan uzun kalacağı için XGBoost’tan önce pencere sayıları eşitlenir veya sınıf ağırlığı yazılır; SHAP ancak ondan sonradır. Kalan ömür V1–V8 dışındadır ve başvuruda gelecek çalışma olarak durur.
 
 Sonraki aşamaya, kullanıcı onaylamadan geçilmez.
 

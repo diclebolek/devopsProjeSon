@@ -6,6 +6,24 @@ Her saniye cihaz bir titreşim penceresi toplar, ortalamayı (yerçekimi ofsetin
 
 Kod `sentra/` altındadır. Bu deponun `backend/` ve `frontend/` ağacı ayrı bir sigorta sitesidir. SENTRA onu değiştirmez.
 
+## Neyi çözer
+
+On iki voltluk bir motor tezgâhında dört işi aynı anda yapmak: ham titreşimi sürekli hatta basmamak, mekanik sapmayı yük sapmasından ayırmak, başka tezgâhın doğruluk yüzdesini ve ISO 20816 bölgesini bu gövdeye yapıştırmamak, donanım yokken aynı sözleşmeyle panoyu doldurmak.
+
+Çıktı bir durum adıdır. Sağlam kayda göre sapma var mı; varsa yük mü, dengesizlik mi, gevşek montaj mı. “Kaç saat sonra müdahale” sorusu bu sürümün dışındadır. Kalan ömür gelecek çalışmadır (`docs/methodology.md`).
+
+## Benzeri var
+
+Var. Üç komşu aile duruyor. SENTRA onların yerine yeni bir fizik iddiası koymaz.
+
+| Aile | Ne yapıyor | Bu tezgâhta durmayan yeri |
+| --- | --- | --- |
+| ESP32 öğrenci kitleri (JAAFR, JETIR, UPC tez özeti, IJEAST 2026) | MPU6050 veya ADXL345, INA219 veya ACS712, DS18B20, MQTT. | Sensör çantası ortaktır. Çoğu ham veya seyrek örnek basar. “%100 doğruluk” cümlesi oturum bölmeli test değildir. |
+| Fabrika kenar izleme (Vermesan 2022) | Titreşim, sıcaklık, ses, akım. ISO 20816-1:2016 RMS hız bölgeleri. | Bölge tablosu makine sınıfına bağlıdır. 12 V laboratuvar motoru o sınıflara girmez. |
+| CWRU özellik makaleleri (Branco 2024, Alonso-González 2023) | 12 kHz ve üzeri, rulman zarfı, SHAP veya kurtogram. | MPU6050 ile 1 kHz, BPFI/BPFO ayrımı hedeflemez. |
+
+Ayrım şurada: özellik formülü Rust, Go ve sonra Python’da aynı oracle’a kilitlenir; erken uyarı yalnız sağlam veriyle Isolation Forest’tır, dört sınıf adı XGBoost’tur; rapor oturum bölmesi ve sınıf başına recall ister.
+
 ## Literatürden ne çıktı
 
 Taranan işler iki aileye ayrılıyor. Birinci aile, kontrollü tezgâhta titreşim toplayıp sınıflandırıcı kıyaslıyor. İkinci aile, ESP32 ve birkaç sensörle MQTT’ye veri basan öğrenci uygulaması. Birinci ailenin ölçüm dili bu projeye girer. İkinci ailenin doğruluk cümleleri, oturum sızıntısı ve endüstriyel ivmeölçer olmadığı için rakam olarak devralınmaz.
@@ -34,13 +52,13 @@ Bunlar seçilmiş listedir. Yerine başka yığın önerilmez.
 | Titreşim | MPU6050, pencere ortalaması alınmış RMS, tepe, crest factor, kurtosis, baskın FFT kutusu | Kim 2023, Branco 2024, CWRU zaman özellikleri. 1 kHz, 256 örnek. |
 | Sıcaklık | DS18B20 | Isıl sapma, titreşimin görmediği yavaş arıza. |
 | Akım ve gerilim | INA219, 0,1 Ω, 3,2 A tam ölçek, kalibrasyon yazmacı 4194 | Yük kanalı (Ali 2024, Allegro). |
-| Devir | Hall A3144 | Değişken hızda 1× frekansı devirle okumak (FIT 2024). |
+| Devir | Hall A3144, telemetride ayrı `rpm` alanı | 1× hattı `rpm/60`. RMS’i bölmek için kullanılmaz (FIT 2024). |
 | Taşıma | MQTT 3.1.1, Mosquitto, konu `sentra/v1/{cihaz}/{telemetry,label,status}` | Öğrenci sistemlerinin ortak taşıması. Yük, özellik çerçevesi olduğu için küçük. |
 | Kayıt | TimescaleDB (uzantı yoksa düz PostgreSQL) | Zaman serisi. InfluxDB alternatifleri görüldü; SQL ve mevcut testler için Timescale seçildi. |
 | Toplama ve pano | Go | Eşzamanlı abone ve HTTP. Model dili değil. |
-| Etiketsiz sapma | Isolation Forest, yalnız sağlam oturum | Etiket birikmeden anomali. Titreşim anomalisi için yayımlanmış denetimsiz seçenek. |
-| Etiketli sınıf | XGBoost: `NORMAL`, `OVERLOAD`, `UNBALANCED`, `HIGH_VIBRATION` | Hız ve tablo özelliği (Kim 2023, Ali 2024). |
-| Açıklama | SHAP | Branco 2024. |
+| Erken uyarı | Isolation Forest, yalnız sağlam oturum | “Sağlam bulutun dışında mı?” Sınıf adı vermez. Etiket birikmeden de çalışır. |
+| Sınıflandırma | XGBoost: `NORMAL`, `OVERLOAD`, `UNBALANCED`, `HIGH_VIBRATION` | “Gösterilen dört rejimden hangisi?” (Kim 2023, Ali 2024). Gösterilmemiş arızaya isim koyamaz. |
+| Açıklama | SHAP, sınıf dengesi kurulduktan sonra | Branco 2024. Sağlam çoğunluğun açıklaması diye kullanılmaz. |
 | Sağlık skoru | 0–100, sağlam merkeze uzaklık ve sınıf olasılığı | ISO bölge rakamı değil. |
 
 Python 3.11 bu listedeki Isolation Forest, XGBoost ve SHAP için V2’den itibaren girer. Rust ve Go onların yerine geçmez.
@@ -76,10 +94,11 @@ Sıra atlanmaz. Her adım bir öncekinin kaydı durunca başlar.
 3. Kontrollü rejim. Her rejim ayrı oturum: kısa süreli fren (aşırı yük), mile küçük kütle (dengesizlik), gevşetilmiş ayak (yüksek titreşim). Etiket oturum adından gelir.
 4. Kenar özellik. Aynı formül Rust’ta cihazda, Go simülatöründe ve sonra Python’da. Oracle `testdata/dsp_case.json`.
 5. Bölme. Test oturumu eğitime girmez. Pencereyi rastgele karıştırmak yok.
-6. Isolation Forest yalnız sağlam pencerede öğrenir. Arıza penceresi “görülmemiş” ise şüpheli sayılır.
-7. XGBoost dört sınıfı oturum bölmesiyle öğrenir. Rapor doğruluk, karışıklık matrisi ve sağlam sınıfın kaçarını arıza sandığıdır. Tek bir yüzde yetmez.
-8. SHAP, yüksek çıkan sınıf için hangi alanın ittiğini gösterir.
-9. Sağlık skoru ve alarm, ancak 6 ve 7 kendi test oturumunda ayrımı bozmadan durursa panoya yazılır.
+6. Isolation Forest yalnız sağlam pencerede öğrenir. Bu erken uyarıdır. Arıza penceresi “görülmemiş” ise şüpheli sayılır. Sınıf adı bu adımda yazılmaz.
+7. XGBoost’tan önce sınıf başına pencere sayısı yazılır. Sağlam oturum uzun, arıza oturumu kısa kalırsa ya sağlam pencereler eşit aralıkla alt örneklenir ya da sınıf başına örnek ağırlığı konur. Tek doğruluk yüzdesi bu dengesizliği gizler. Ayrıntı `docs/methodology.md`.
+8. XGBoost dört sınıfı oturum bölmesiyle öğrenir. Rapor sınıf başına recall ve karışıklık matrisidir. Isolation Forest sapma deyip XGBoost `NORMAL` derse sonuç bilinmeyen sapmadır.
+9. SHAP, 7. adımdan sonra, yüksek çıkan sınıf için hangi alanın ittiğini gösterir.
+10. Sağlık skoru ve alarm, ancak 6 ve 8 kendi test oturumunda ayrımı bozmadan durursa panoya yazılır. Kalan ömür bu adımların arasında yoktur.
 
 ```mermaid
 flowchart TD
@@ -88,10 +107,12 @@ flowchart TD
   faults --> edge["Kenar ozellik"]
   edge --> store["MQTT ve TimescaleDB"]
   store --> split["Oturum bazli bolme"]
-  split --> iforest["Isolation Forest"]
-  split --> xgb["XGBoost"]
-  iforest --> score["Saglik skoru"]
-  xgb --> score
+  split --> iforest["Erken uyari: Isolation Forest"]
+  split --> balance["Sinif penceresini esitle"]
+  balance --> xgb["Siniflandirma: XGBoost"]
+  iforest --> gate["Sapma var mi"]
+  xgb --> gate
+  gate --> score["Saglik skoru"]
   xgb --> shap["SHAP"]
   score --> board["Pano"]
   shap --> board
@@ -114,24 +135,11 @@ Ayrıntı: `docs/methodology.md`, formüller `docs/dsp.md`, kararlar `docs/decis
 
 ## Gerçeklemek için ihtiyaç listesi
 
-Fiyat yazılmadı. Parça, tezgâh kurulurken satıcıdan doğrulanır.
+Parça, adet, KDV dahil fiyat ve satıcı bağlantısı `docs/malzeme-listesi.md` içindedir. 23 Eylül 2026 vitrinine göre doğrulanan satırların toplamı 1.296,67 TL’dir. Kargo ve stok o dosyada toplama dahil değildir.
 
-### Donanım
+Motor, boşta 60 mA ve zorlanma 0,45 A çeken 12 V 280 rpm redüktörlü gövdedir. Zorlanma akımı INA219 tam ölçeğinin (3,2 A) ve 12 V 2 A adaptörün içindedir. Motor akımı ESP32 pininden geçmez.
 
-- ESP32-DevKitC veya eşdeğeri ESP32-WROOM-32 kartı ve USB kablosu
-- MPU6050 (GY-521) modülü
-- DS18B20 ve 4,7 kΩ direnç
-- INA219 kırılım kartı. Modülde 0,1 Ω şönt varsa ayrı şönt gerekmez. Laboratuvar tam ölçeği 3,2 A
-- A3144 Hall sensörü, 10 kΩ direnç, mile yapışacak küçük mıknatıs
-- 12 V DC motor. Boşta akımı ve kilit akımı 3,2 A’nın altında kalmalı. Kilit akımı daha yüksekse şönt ve `Ina219Config` yeniden hesaplanır
-- Motor için ayrı 12 V adaptör. ESP32 USB’den beslenir. Motor akımı kart pininden geçmez
-- Ortak toprak kablosu, breadboard veya delikli plaka, jumper
-- Motoru sabitleyen tahta veya mengene
-- Dengesizlik deneyi için mile kelepçelenecek somun
-- Kısa süreli yük deneyi için kayış veya elle fren. Kilitli motor uzun süre çalıştırılmaz
-- Multimetre
-
-Bağlantı: `docs/circuit-diagram.md`.
+Bağlantı: `docs/circuit-diagram.md`. Elde yoksa ayrıca duranlar: mikro USB kablo, 5,5×2,1 mm dişi jak, multimetre, mengene, mile kelepçelenecek somun. Jak fiyatı malzeme dosyasında kilitlenmedi.
 
 ### Alet ve yazılım
 
@@ -143,7 +151,7 @@ Bağlantı: `docs/circuit-diagram.md`.
 ### Veri
 
 - En az bir sağlam oturum, on dakika
-- Her arıza rejiminden ayrı oturum. Süre, ısınma motora zarar vermeyecek kadar kısa, pencereler istatistik için yeterince çok
+- Her arıza rejiminden ayrı oturum. Süre, ısınma motora zarar vermeyecek kadar kısa, pencereler istatistik için yeterince çok. Kısa arıza oturumu, eğitimde sağlam sınıfın pencere sayısıyla eşitlenir veya ağırlıklanır (`docs/methodology.md`)
 - Her oturumun etiketi `NORMAL`, `OVERLOAD`, `UNBALANCED` veya `HIGH_VIBRATION`
 - Teste ayrılmış ve eğitime hiç girmemiş ikinci bir sağlam oturum ve ikinci bir arıza oturumu
 
@@ -198,7 +206,8 @@ firmware/sentra-edge   host düğüm ve MQTT 3.1.1 istemcisi
 firmware/esp32         kart pinleri
 pipeline/cmd/ingest    MQTT, HTTP, pano
 pipeline/cmd/simulator dört rejim
-docs/methodology.md    izleme kuralı ve akış
+docs/methodology.md    izleme kuralı, Hall kanalı, sınıf dengesi
+docs/malzeme-listesi.md parça, fiyat, bağlantı
 testdata/              Rust ve Go oracle
 ```
 
@@ -211,7 +220,26 @@ Sözleşme `schema/telemetry.md`. Örnek çerçeve `testdata/frame_normal.json`.
 - MPU6050, Kim 2023’teki endüstriyel ivmeölçer değildir. 1 kHz örnekleme, 12 V motorun dönüş frekansını ve birkaç harmoniği görür. CWRU’daki 12–48 kHz rulman zarfı bu kartın iddiası değildir.
 - Yayımlanmış %96–%100 bandı başka tezgâhın, başka arızasının sonucudur. Bu motor için rakam, oturum bölmeli testten önce yazılmaz.
 - ISO 20816 bölgeleri bu gövdeye uygulanmaz.
+- Hall `rpm` alanı RMS’i normalize etmez. 1× yorumu `rpm/60` iledir.
+- Isolation Forest erken uyarı, XGBoost dört sınıf adıdır. İkisi aynı rozet değildir.
+- XGBoost, sınıf başına pencere eşitlenmeden veya ağırlık yazılmadan raporlanmaz. SHAP ondan sonradır.
+- Kalan ömür yoktur. Sistem durum tanır. Müdahale zamanı gelecek çalışmadır.
 - V1’de sağlık skoru, Isolation Forest, XGBoost ve SHAP yoktur. Sıra `docs/v1-data-collection.md` ile başlar. V2, `docs/dsp.md` formüllerinin Python karşılığıdır ve onay beklemektedir.
+
+## Kaynakça
+
+Rakamlar kaynak tezgâhın sonucudur. Bu motor için doğruluk, oturum bölmeli testten önce yazılmaz.
+
+1. Kim, M.-C.; Lee, J.-H.; Wang, D.-H.; Lee, I.-S. “Induction Motor Fault Diagnosis Using Support Vector Machine, Neural Networks, and Boosting Methods.” *Sensors* 2023, 23, 2585. https://doi.org/10.3390/s23052585 — asenkron motor titreşiminde XGBoost hızı ve tablo özelliği.
+2. Ali ve diğerleri. *IEEE Transactions on Energy Conversion*, 2024. https://doi.org/10.1109/TEC.2024.3405897 — titreşim ile elektrik ölçümünün birlikte kullanımı, ayarlanmış XGBoost.
+3. Değişken hızda rulman titreşimi. *FIT* 2024. https://doi.org/10.1109/FIT63703.2024.10838415 — sabit hertz eşiğinin yetmemesi.
+4. Titreşim ve akım karşılaştırması. *Structural Health Monitoring*, 2024. https://doi.org/10.1177/14759217241289874 — mekanik arızada titreşim, yükte akım.
+5. Branco ve diğerleri. *Machine Learning and Knowledge Extraction* 2024, 6(1), 16. https://doi.org/10.3390/make6010016 — zaman özellikleri ve SHAP.
+6. Alonso-González ve diğerleri. *IEEE Access* 2023. https://doi.org/10.1109/ACCESS.2023.3283466 — zarf ve kurtogram. 1 kHz MPU6050 bu ayrımı hedeflemez.
+7. Zacharia ve diğerleri. *Sensors* 2022, 22(24), 9658. https://doi.org/10.3390/s22249658 — çıkarımın kenarda durması.
+8. Vermesan ve diğerleri. *Frontiers in Chemical Engineering* 2022. https://doi.org/10.3389/fceng.2022.900096 — ISO 20816-1:2016. Bölge tablosu bu gövdeye uygulanmaz.
+9. Allegro AN296276. Fırçalı DC motorda hat akımı, yük ve sargı içindir. https://www.allegromicro.com/-/media/files/application-notes/an296276-current-sensing-in-motor-drives.pdf
+10. ESP32 sensör çantası raporları, doğruluk iddiası olarak değil: JAAFR https://www.rjwave.org/jaafr/papers/JAAFRTH00034.pdf — JETIR https://www.jetir.org/papers/JETIR2511506.pdf — UPC tezi https://hdl.handle.net/2117/328861
 
 ## Test
 

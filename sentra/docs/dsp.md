@@ -8,7 +8,7 @@ Rust `vibration_features` ve Go `dsp.VibrationFeatures` aynı adımları uygular
 4. Tepe, ortalaması alınmış örneklerin mutlak maksimumudur.
 5. Crest factor, RMS sıfıra çok yakınsa 0, değilse tepe bölü RMS'tir.
 6. Kurtosis, dördüncü populasyon momentinin ikinci momentin karesine bölümüdür. Fazlalık (excess) değildir. Saf sinüs 1.5, normal dağılım yaklaşık 3'tür. Varyans yoksa kurtosis 0 yazılır; NaN yayınlanmaz.
-7. Baskın frekans, ortalaması alınmış pencerenin FFT'sinde doğru akım kutusu hariç en büyük genlikli kutudur. Eşitlikte daha düşük frekans kalır. Çözünürlük `örnek_hızı / pencere` hertzdir.
+7. Baskın frekans, ortalaması alınmış pencerenin FFT'sinde doğru akım kutusu hariç en büyük genlikli kutudur. Eşitlikte daha düşük frekans kalır. Çözünürlük `örnek_hızı / pencere` hertzdir. Bu hesap devir almaz. RMS devire bölünmez. Hall’dan gelen `rpm` ayrı kanaldır; 1× hattı `rpm/60` olarak yorumda kullanılır. Ayrıntı `methodology.md`.
 
 Telemetri şeması pencereyi 16 ile 2048 arasında ve ikinin kuvveti olmaya zorlar. DSP fonksiyonu, oracle'daki 8 örnekli dalgayı da kabul eder; çerçeve doğrulaması onu yayınlatmaz.
 
