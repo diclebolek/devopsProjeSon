@@ -34,6 +34,8 @@ sentra/testdata/     Rust ve Go'nun paylaştığı sayısal oracle
 
 V1 veri toplama bu dalda çalışır durumda teslim edildi. Ayrıntı: `sentra/docs/v1-data-collection.md` ve `sentra/README.md`.
 
+İzleme kuralı, literatür seçimi ve ihtiyaç listesi `sentra/README.md` ile `sentra/docs/methodology.md` içindedir. Sağlam oturumun dışındaki ISO titreşim bölgeleri bu motora uygulanmaz. Model rakamı, oturum bölmeli testten önce yazılmaz.
+
 Sonraki aşamaya, kullanıcı onaylamadan geçilmez.
 
 - **V2** Python'da aynı DSP formüllerinin referans modülü ve özellik kaydı
