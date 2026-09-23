@@ -34,3 +34,6 @@ yarn-error.log*
 # Temporary files
 tmp/
 temp/
+
+# SENTRA build output
+sentra/firmware/target/

@@ -1,0 +1,9 @@
+[package]
+name = "sentra-edge"
+version = "0.1.0"
+edition = "2021"
+description = "Host stand-in for the ESP32 edge node. Prints telemetry and can publish MQTT."
+license = "MIT"
+
+[dependencies]
+sentra-core = { path = "../sentra-core" }

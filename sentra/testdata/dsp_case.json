@@ -1,0 +1,24 @@
+{
+  "description": "Shared DSP oracle for the Rust firmware and the Go simulator. Features are computed after the window mean is removed, so a gravity offset must not look like vibration.",
+  "sine": {
+    "sample_rate_hz": 256,
+    "frequency_hz": 8,
+    "amplitude": 1.0,
+    "offset": 1.0,
+    "count": 256,
+    "expected_rms": 0.7071067811865476,
+    "expected_peak": 1.0,
+    "expected_crest_factor": 1.4142135623730951,
+    "expected_kurtosis": 1.5,
+    "expected_dominant_freq_hz": 8.0
+  },
+  "fixed": {
+    "sample_rate_hz": 8,
+    "samples": [1, 1, 1, 1, -1, -1, -1, -1],
+    "expected_rms": 1.0,
+    "expected_peak": 1.0,
+    "expected_crest_factor": 1.0,
+    "expected_kurtosis": 1.0,
+    "expected_dominant_freq_hz": 1.0
+  }
+}

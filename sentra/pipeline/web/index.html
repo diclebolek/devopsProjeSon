@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SENTRA</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #14120e;
+      --bg-raise: #1e1b16;
+      --line: #3c3429;
+      --ink: #f3eee4;
+      --muted: #b3a89a;
+      --copper: #e0a15a;
+      --sage: #9cba9a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(1200px 500px at 10% -10%, rgba(224, 161, 90, 0.16), transparent 55%),
+        var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+      letter-spacing: 0.01em;
+    }
+    header, main, footer { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      padding: 28px 0 8px;
+    }
+    .mark {
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      font-size: 14px;
+    }
+    header p, .lede, .muted, footer { color: var(--muted); }
+    header p { margin: 6px 0 0; }
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 13px;
+      background: var(--bg-raise);
+    }
+    .pill.live { color: var(--sage); border-color: #3f5c40; }
+    .pill.down { color: #e7b2a4; border-color: #6a4036; }
+    main { padding-bottom: 48px; }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr;
+      gap: 24px;
+      align-items: center;
+      padding: 12px 0 8px;
+    }
+    h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.05; margin: 8px 0; font-weight: 650; }
+    h2 { font-size: 16px; font-weight: 600; margin: 28px 0 10px; }
+    .eyebrow { text-transform: uppercase; letter-spacing: 0.14em; font-size: 12px; color: var(--copper); margin: 0; }
+    .lede { max-width: 62ch; line-height: 1.5; }
+    .spark {
+      min-height: 96px;
+      border: 1px solid var(--line);
+      background: var(--bg-raise);
+      border-radius: 16px;
+      padding: 12px 14px;
+    }
+    .spark svg { width: 100%; height: 72px; display: block; }
+    .spark polyline { fill: none; stroke: var(--copper); stroke-width: 2.5; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .tile {
+      background: var(--bg-raise);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+    }
+    .tile span { display: block; color: var(--muted); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .tile strong {
+      display: block;
+      margin-top: 8px;
+      font-family: ui-monospace, "Cascadia Code", "SFMono-Regular", monospace;
+      font-size: 28px;
+      font-weight: 600;
+    }
+    .tile em { font-style: normal; color: var(--muted); font-size: 14px; margin-left: 4px; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 10px 12px; white-space: nowrap; }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+    tr + tr td { border-top: 1px solid var(--line); }
+    .tag {
+      border-radius: 999px;
+      padding: 2px 8px;
+      border: 1px solid var(--line);
+    }
+    .tag.NORMAL { color: var(--sage); }
+    .tag.OVERLOAD { color: var(--copper); }
+    .tag.UNBALANCED { color: #e6c36a; }
+    .tag.HIGH_VIBRATION { color: #e7b2a4; }
+    footer { padding-bottom: 28px; font-size: 13px; }
+    button, select {
+      background: var(--bg-raise);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    button { cursor: pointer; }
+    :focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+    @media (max-width: 800px) {
+      .hero, .metrics { grid-template-columns: 1fr 1fr; }
+      header { flex-direction: column; align-items: start; }
+    }
+    @media (max-width: 560px) {
+      .hero, .metrics { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="mark">SENTRA</div>
+      <p>Kenar hesaplamalı motor izleme</p>
+    </div>
+    <div id="link-status" class="pill">bağlanıyor</div>
+  </header>
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow" id="device-name">cihaz bekleniyor</p>
+        <h1 id="condition">Etiket yok</h1>
+        <p class="lede">Ham titreşim penceresi motorda kalır. Bu ekran, cihazın hesapladığı özeti gösterir. Renkli etiket simülatörün bildirdiği rejimdir; bir model kararı değildir.</p>
+        <label>
+          Cihaz
+          <select id="device-select"></select>
+        </label>
+      </div>
+      <div class="spark" id="spark"></div>
+    </section>
+    <section class="metrics" id="metrics"></section>
+    <h2>Son pencereler</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Zaman</th>
+            <th>Cihaz</th>
+            <th>Rejim</th>
+            <th>Devir</th>
+            <th>Sıcaklık</th>
+            <th>Akım</th>
+            <th>RMS</th>
+            <th>Frekans</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </main>
+  <footer id="footer">V1 veri toplama. Sağlık skoru sonraki aşamadadır.</footer>
+  <noscript>Bu ekran canlı veriyi görebilmek için JavaScript kullanır.</noscript>
+  <script>
+    const names = {
+      NORMAL: "Normal çalışma",
+      OVERLOAD: "Aşırı yük",
+      UNBALANCED: "Dengesiz yük",
+      HIGH_VIBRATION: "Yüksek titreşim"
+    };
+    const tiles = [
+      ["rpm", "Devir", "rpm", 0],
+      ["temperature_c", "Sıcaklık", "°C", 1],
+      ["current_a", "Akım", "A", 2],
+      ["voltage_v", "Gerilim", "V", 2],
+      ["accel_rms_g", "Titreşim RMS", "g", 3],
+      ["accel_peak_g", "Tepe", "g", 3],
+      ["kurtosis", "Kurtosis", "", 2],
+      ["dominant_freq_hz", "Baskın frekans", "Hz", 1]
+    ];
+    const select = document.getElementById("device-select");
+    const metrics = document.getElementById("metrics");
+    const rows = document.getElementById("rows");
+    const spark = document.getElementById("spark");
+    const link = document.getElementById("link-status");
+
+    function number(value, digits) {
+      if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+      return value.toFixed(digits);
+    }
+
+    function stamp(ms) {
+      if (!ms) return "—";
+      return new Date(ms).toLocaleString("tr-TR", { hour12: false });
+    }
+
+    function clear(node) {
+      while (node.firstChild) node.removeChild(node.firstChild);
+    }
+
+    function tag(condition) {
+      const span = document.createElement("span");
+      span.className = "tag" + (condition ? " " + condition : "");
+      span.textContent = names[condition] || "etiket yok";
+      return span;
+    }
+
+    function drawSpark(values) {
+      clear(spark);
+      const caption = document.createElement("div");
+      caption.className = "muted";
+      caption.textContent = "Titreşim RMS";
+      spark.appendChild(caption);
+      if (values.length < 2) {
+        const note = document.createElement("p");
+        note.className = "muted";
+        note.textContent = "Grafik için en az iki pencere gerekir.";
+        spark.appendChild(note);
+        return;
+      }
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("viewBox", "0 0 320 72");
+      const min = Math.min.apply(null, values);
+      const max = Math.max.apply(null, values);
+      const span = (max - min) || 1;
+      const points = values.map(function (value, index) {
+        const x = values.length === 1 ? 8 : 8 + (index / (values.length - 1)) * 304;
+        const y = 64 - ((value - min) / span) * 56;
+        return x.toFixed(1) + "," + y.toFixed(1);
+      }).join(" ");
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+      line.setAttribute("points", points);
+      svg.appendChild(line);
+      spark.appendChild(svg);
+    }
+
+    function renderTiles(frame) {
+      clear(metrics);
+      tiles.forEach(function (spec) {
+        const tile = document.createElement("article");
+        tile.className = "tile";
+        const label = document.createElement("span");
+        label.textContent = spec[1];
+        const value = document.createElement("strong");
+        value.textContent = frame ? number(frame[spec[0]], spec[3]) : "—";
+        if (spec[2]) {
+          const unit = document.createElement("em");
+          unit.textContent = spec[2];
+          value.appendChild(unit);
+        }
+        tile.appendChild(label);
+        tile.appendChild(value);
+        metrics.appendChild(tile);
+      });
+    }
+
+    function renderRows(items) {
+      clear(rows);
+      if (!items.length) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 8;
+        cell.textContent = "Henüz çerçeve yok. Simülatörü veya kenar düğümünü başlatın.";
+        row.appendChild(cell);
+        rows.appendChild(row);
+        return;
+      }
+      items.forEach(function (item) {
+        const row = document.createElement("tr");
+        [stamp(item.captured_at_ms), item.device_id, "", number(item.rpm, 0), number(item.temperature_c, 1), number(item.current_a, 2), number(item.accel_rms_g, 3), number(item.dominant_freq_hz, 1)].forEach(function (text, index) {
+          const cell = document.createElement("td");
+          if (index === 2) cell.appendChild(tag(item.condition_label));
+          else cell.textContent = text;
+          row.appendChild(cell);
+        });
+        rows.appendChild(row);
+      });
+    }
+
+    async function tick() {
+      try {
+        const health = await fetch("/healthz").then(function (r) { return r.json(); });
+        const deviceData = await fetch("/api/v1/devices").then(function (r) { return r.json(); });
+        const devices = deviceData.devices || [];
+        const previous = select.value;
+        clear(select);
+        const all = document.createElement("option");
+        all.value = "";
+        all.textContent = devices.length ? "tüm cihazlar" : "cihaz yok";
+        select.appendChild(all);
+        devices.forEach(function (device) {
+          const option = document.createElement("option");
+          option.value = device.device_id;
+          option.textContent = device.device_id + (device.fresh ? " · canlı" : " · sessiz");
+          select.appendChild(option);
+        });
+        if ([].some.call(select.options, function (option) { return option.value === previous; })) {
+          select.value = previous;
+        }
+        const query = select.value ? "?device_id=" + encodeURIComponent(select.value) + "&limit=40" : "?limit=40";
+        const telemetry = await fetch("/api/v1/telemetry" + query).then(function (r) { return r.json(); });
+        const items = telemetry.items || [];
+        const latest = items[0] || null;
+        document.getElementById("device-name").textContent = latest ? latest.device_id : "cihaz bekleniyor";
+        document.getElementById("condition").textContent = latest && latest.condition_label ? names[latest.condition_label] || latest.condition_label : "Etiket yok";
+        renderTiles(latest);
+        renderRows(items);
+        drawSpark(items.slice().reverse().map(function (item) { return item.accel_rms_g; }));
+        var storeName = health.store === "memory" ? "bellek" : (health.store || "bellek");
+        link.className = "pill " + (health.mqtt_connected ? "live" : "down");
+        link.textContent = (health.mqtt_connected ? "MQTT bağlı" : "MQTT yok") + " · " + storeName;
+      } catch (error) {
+        link.className = "pill down";
+        link.textContent = "bağlantı koptu";
+      }
+    }
+
+    select.addEventListener("change", tick);
+    renderTiles(null);
+    renderRows([]);
+    drawSpark([]);
+    tick();
+    setInterval(tick, 2000);
+  </script>
+</body>
+</html>
